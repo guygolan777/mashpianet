@@ -9,7 +9,7 @@ const PLATS=['אינסטגרם','טיקטוק','יוטיוב','UGC'];
 const NICHES_ALL=['ביוטי','אופנה','לייפסטייל','UGC','טכנולוגיה','כושר','טיולים','חיות מחמד','אוכל','הורות','גיימינג','עסקים'];
 const E=s=>String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/'/g,'&#39;').replace(/"/g,'&quot;');
 
-(function(){const st=document.createElement('style');st.textContent='.auth.wide .bc{max-width:780px}.auth .bc .brand{display:flex}.g2{display:grid;grid-template-columns:1fr 1fr;gap:0 16px}.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:0 16px}.sech{font-weight:700;margin:22px 0 10px;color:var(--sky2);font-size:15px}.err{background:#ffe9e9;color:#a02020;border-radius:12px;padding:10px 14px;margin:12px 0;display:none}.err.show{display:block}.chk{display:flex;gap:8px;align-items:flex-start;margin:12px 0;font-size:14px}.chk input{margin-top:4px}.uname{font-weight:600;white-space:nowrap}.roles{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:22px}.rolecard{border:2px solid var(--line);border-radius:20px;padding:26px 20px;cursor:pointer;text-align:center;background:#fff;display:block;color:inherit;transition:.2s}.rolecard:hover{border-color:var(--sky);transform:translateY(-2px)}.rolecard b{display:block;font-size:20px;margin:8px 0 6px}.rolecard span{color:var(--ink2);font-size:14px;display:block}.rolecard i{font-style:normal;font-size:34px}.hint{color:var(--mut);font-size:13px;margin-top:4px}.rb{display:inline-block;background:#e4f5ff;color:#0b7cc4;border-radius:99px;padding:3px 12px;font-size:13px;font-weight:600}@media(max-width:700px){.g2,.g3,.roles{grid-template-columns:1fr}}.ctr .h2,.ctr .sub{text-align:center}.ctr .brand{justify-content:center}.ctr .slogan{text-align:center}.auth .slogan{margin:2px 0 20px;padding:0}.auth .bc .brand{padding:0}.roles{gap:20px;margin-top:26px;align-items:stretch}.rolecard{display:flex;flex-direction:column;align-items:flex-start;text-align:right;padding:28px 26px}.rolecard i{width:64px;height:64px;border-radius:20px;display:grid;place-items:center;font-size:30px;background:linear-gradient(145deg,#d9f1ff,#c8f3ea);margin-bottom:16px}.rolecard b{font-size:21px;margin:0 0 8px}.rolecard ul{list-style:none;padding:0;margin:16px 0 22px;display:grid;gap:9px;font-size:14px;color:var(--ink)}.rolecard li{padding-right:24px;position:relative}.rolecard li:before{content:\"✓\";position:absolute;right:0;color:var(--sky2);font-weight:800}.rolecard em{font-style:normal;margin-top:auto;width:100%;text-align:center}';document.head.append(st)})();
+(function(){const st=document.createElement('style');st.textContent='.auth.wide .bc{max-width:780px}.auth .bc .brand{display:flex}.g2{display:grid;grid-template-columns:1fr 1fr;gap:0 16px}.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:0 16px}.sech{font-weight:700;margin:22px 0 10px;color:var(--sky2);font-size:15px}.err{background:#ffe9e9;color:#a02020;border-radius:12px;padding:10px 14px;margin:12px 0;display:none}.err.show{display:block}.chk{display:flex;gap:8px;align-items:flex-start;margin:12px 0;font-size:14px}.chk input{margin-top:4px}.uname{font-weight:600;white-space:nowrap}.roles{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:22px}.rolecard{border:2px solid var(--line);border-radius:20px;padding:26px 20px;cursor:pointer;text-align:center;background:#fff;display:block;color:inherit;transition:.2s}.rolecard:hover{border-color:var(--sky);transform:translateY(-2px)}.rolecard b{display:block;font-size:20px;margin:8px 0 6px}.rolecard span{color:var(--ink2);font-size:14px;display:block}.rolecard i{font-style:normal;font-size:34px}.hint{color:var(--mut);font-size:13px;margin-top:4px}.rb{display:inline-block;background:#e4f5ff;color:#0b7cc4;border-radius:99px;padding:3px 12px;font-size:13px;font-weight:600}@media(max-width:700px){.g2,.g3,.roles{grid-template-columns:1fr}}.ctr .h2,.ctr .sub{text-align:center}.ctr .brand{justify-content:center}.ctr .slogan{text-align:center}.auth .slogan{margin:2px 0 20px;padding:0}.auth .bc .brand{padding:0}.roles{gap:20px;margin-top:26px;align-items:stretch}.rolecard{display:flex;flex-direction:column;align-items:flex-start;text-align:right;padding:28px 26px}.rolecard i{width:64px;height:64px;border-radius:20px;display:grid;place-items:center;font-size:30px;background:linear-gradient(145deg,#d9f1ff,#c8f3ea);margin-bottom:16px}.rolecard b{font-size:21px;margin:0 0 8px}.rolecard ul{list-style:none;padding:0;margin:16px 0 22px;display:grid;gap:9px;font-size:14px;color:var(--ink)}.rolecard li{padding-right:24px;position:relative}.rolecard li:before{content:\"✓\";position:absolute;right:0;color:var(--sky2);font-weight:800}.rolecard em{font-style:normal;margin-top:auto;width:100%;text-align:center}.pkb{border:1px dashed #bfe0f5;border-radius:16px;padding:16px;background:#f6fbff;margin-top:10px}.pkb b{display:block;margin-bottom:10px}.pkrow{display:grid;grid-template-columns:80px 1fr auto;gap:10px;margin-bottom:10px}.pkrow input,.pkrow select{border:1px solid var(--line);border-radius:14px;padding:10px 12px;background:#fff;min-width:0}.pkc{display:flex;align-items:center;gap:12px;border:1px solid var(--line);border-radius:16px;padding:12px 14px;margin-bottom:8px;background:#fff}.pkc>div:first-child{flex:1;min-width:0}.pkc b{display:block}.pkc small{display:block;color:var(--mut);margin-top:2px}.pkpr{font-weight:800;color:var(--sky2);white-space:nowrap}.pkx{color:var(--mut);font-size:16px;padding:4px 8px}.pkx:hover{color:#c0392b}@media(max-width:700px){.pkrow{grid-template-columns:70px 1fr}.pkrow .btn{grid-column:1/-1}}';document.head.append(st)})();
 
 const sel=(id,label,opts,val)=>`<div class='fld'><label>${label}</label><select id='${id}'><option value=''>בחרו</option>${opts.map(o=>`<option ${o===val?'selected':''}>${E(o)}</option>`).join('')}</select></div>`;
 const inp=(id,label,type,ph,val,extra)=>`<div class='fld'><label>${label}</label><input id='${id}' type='${type||'text'}' placeholder='${E(ph||'')}' value='${E(val)}' ${extra||''}></div>`;
@@ -71,15 +71,50 @@ const readAdv=()=>{
  const w=val('web'),nu=normUrl(w);if(w&&!nu)return {error:'כתובת האתר לא תקינה'};
  return {d:{company_name:co,industry:val('ind'),website:nu||'',monthly_budget:val('bud'),platforms:picked('plats'),goal:val('goal'),about:val('about')}}};
 
-const crDetails=v=>{v=v||{};const nv=x=>x==null?'':x;return `<div class='sech'>פרופיל יוצר</div><div class='g2'>${inp('dn','שם שיוצג בפרופיל *','text','איך מכירים אתכם ברשת',v.display_name)}${inp('city','עיר','text','תל אביב',v.city)}</div><div class='fld'><label>תחומי תוכן * (אפשר לבחור כמה)</label>${chipSet('niches',NICHES_ALL,v.niches)}</div>${area('bio','קצת עליכם','תארו את הסגנון שלכם ואת סוג התוכן שאתם יוצרים',v.bio)}<div class='sech'>החשבונות שלכם ברשתות</div><div class='g2'>${inp('ig','אינסטגרם (שם משתמש)','text','username',v.instagram)}${inp('igf','עוקבים באינסטגרם','number','4200',nv(v.followers_ig),'min=0')}${inp('tt','טיקטוק (שם משתמש)','text','username',v.tiktok)}${inp('ttf','עוקבים בטיקטוק','number','15000',nv(v.followers_tt),'min=0')}${inp('yt','יוטיוב (שם ערוץ)','text','channel',v.youtube)}${inp('ytf','מנויים ביוטיוב','number','800',nv(v.followers_yt),'min=0')}</div><div class='sech'>מחירון התחלתי (₪)</div><div class='g3'>${inp('ps','סטורי','number','150',nv(v.price_story),'min=0')}${inp('pp','פוסט','number','300',nv(v.price_post),'min=0')}${inp('pv','סרטון','number','600',nv(v.price_video),'min=0')}</div>${inp('pf','קישור לתיק עבודות (לא חובה)','text','www.example.com',v.portfolio_url)}`};
+const KINDS=['רילס באינסטגרם','סטורי באינסטגרם','פוסט באינסטגרם','סרטון טיקטוק','סרטון יוטיוב','סרטון UGC','תמונות UGC'];
+const HOSTS={ig:'instagram.com',tt:'tiktok.com',yt:'youtube.com'};
+const HANDLE_OK=/^[A-Za-z0-9._-]{1,60}$/;
+const parseSocial=(id,key)=>{
+ const v=val(id);if(!v)return '';
+ let h=v;
+ const m=v.match(/^(?:https?:\/\/)?(?:www\.|m\.)?([^\/\s]+)\/(.+)$/i);
+ if(m){if(!m[1].toLowerCase().includes(HOSTS[key]))return null;h=m[2]}
+ h=h.split(/[?#]/)[0].replace(/\/+$/,'').replace(/^(c|channel|user)\//i,'').replace(/^@/,'');
+ return HANDLE_OK.test(h)?h:null};
+const socUrl=(key,h)=>!h?'':(/^https?:/i.test(h)?h:({ig:'https://instagram.com/',tt:'https://tiktok.com/@',yt:'https://youtube.com/@'})[key]+h);
+const pkTitle=items=>items.map(i=>i.q+' '+i.k).join(' + ');
+let PKGS=[],CUR=[];
+const pkgHtml=()=>`<div class='sech'>החבילות שלכם</div><p class='hint' style='margin:-4px 0 12px'>הרכיבו חבילות משלכם, למשל 3 רילס באינסטגרם + 2 סטורי, וקבעו להן מחיר. מותגים יראו אותן בפרופיל.</p><div id='pklist'></div><div class='pkb'><b>הרכבת חבילה חדשה</b><div class='pkrow'><input id='pkq' type='number' min='1' max='99' value='1' aria-label='כמות'><select id='pkk' aria-label='סוג'>${KINDS.map(k=>`<option>${E(k)}</option>`).join('')}</select><button type='button' class='btn b3 sm' id='pkadd'>＋ הוסיפו לחבילה</button></div><div class='pill' id='pkitems'></div><div class='g2' style='margin-top:12px'>${inp('pkn','שם החבילה (לא חובה)','text','אם ריק, ייווצר שם אוטומטי')}${inp('pkp','מחיר החבילה (₪)','number','900','','min=0')}</div>${inp('pkd','תיאור קצר (לא חובה)','text','למשל: כולל תיאום זכויות שימוש')}<button type='button' class='btn b2 sm' id='pksave'>שמירת החבילה</button></div>`;
+const renderPk=()=>{
+ const L=$('#pklist');if(!L)return;
+ L.innerHTML=PKGS.length?PKGS.map((p,i)=>`<div class='pkc'><div><b>${E(p.title)}</b><small>${p.items.map(x=>E(x.q+' × '+x.k)).join(' · ')}${p.description?' · '+E(p.description):''}</small></div><div class='pkpr'>₪${Number(p.price).toLocaleString('he-IL')}</div><button type='button' class='pkx' data-i='${i}' aria-label='מחיקה'>✕</button></div>`).join(''):`<div class='hint' style='margin-bottom:10px'>עוד לא הוספתם חבילות.</div>`;
+ $$('.pkx',L).forEach(b=>b.onclick=()=>{PKGS.splice(+b.dataset.i,1);renderPk()});
+ const I=$('#pkitems');I.innerHTML=CUR.map((x,i)=>`<button type='button' class='ch on' data-i='${i}'>${E(x.q+' × '+x.k)} ✕</button>`).join('');
+ $$('button',I).forEach(b=>b.onclick=()=>{CUR.splice(+b.dataset.i,1);renderPk()})};
+const pkgInit=list=>{
+ PKGS=(list||[]).map(p=>({title:p.title,price:p.price,description:p.description||'',items:p.items}));CUR=[];renderPk();
+ $('#pkadd').onclick=()=>{const q=parseInt($('#pkq').value,10);if(!(q>=1&&q<=99))return showErr('הכמות חייבת להיות בין 1 ל־99');
+  const k=$('#pkk').value;const ex=CUR.find(x=>x.k===k);if(ex)ex.q=Math.min(99,ex.q+q);else{if(CUR.length>=12)return showErr('אפשר עד 12 סוגי תוכן בחבילה');CUR.push({q,k})}
+  $('#pkq').value=1;renderPk()};
+ $('#pksave').onclick=()=>{
+  if(!CUR.length)return showErr('הוסיפו לחבילה לפחות פריט אחד (כמות וסוג תוכן)');
+  const pr=$('#pkp').value.trim();const price=Number(pr);if(!pr||!Number.isInteger(price)||price<0||price>1e7)return showErr('נא להזין מחיר חבילה כמספר שלם');
+  if(PKGS.length>=10)return showErr('אפשר להגדיר עד 10 חבילות');
+  const nm=$('#pkn').value.trim();
+  PKGS.push({title:(nm||pkTitle(CUR)).slice(0,160),price,description:$('#pkd').value.trim().slice(0,300),items:CUR.map(x=>({q:x.q,k:x.k}))});
+  CUR=[];$('#pkn').value='';$('#pkp').value='';$('#pkd').value='';renderPk();const er=$('#er');if(er)er.classList.remove('show')}};
+const crDetails=v=>{v=v||{};const nv=x=>x==null?'':x;return `<div class='sech'>פרופיל יוצר</div><div class='g2'>${inp('dn','שם שיוצג בפרופיל *','text','איך מכירים אתכם ברשת',v.display_name)}${inp('city','עיר','text','תל אביב',v.city)}</div><div class='fld'><label>תחומי תוכן * (אפשר לבחור כמה)</label>${chipSet('niches',NICHES_ALL,v.niches)}</div>${area('bio','קצת עליכם','תארו את הסגנון שלכם ואת סוג התוכן שאתם יוצרים',v.bio)}<div class='sech'>הקישורים שלכם לרשתות (לפחות אחד)</div><div class='g2'>${inp('ig','קישור לאינסטגרם','text','https://instagram.com/username',socUrl('ig',v.instagram),'dir=ltr')}${inp('igf','עוקבים באינסטגרם','number','4200',nv(v.followers_ig),'min=0')}${inp('tt','קישור לטיקטוק','text','https://tiktok.com/@username',socUrl('tt',v.tiktok),'dir=ltr')}${inp('ttf','עוקבים בטיקטוק','number','15000',nv(v.followers_tt),'min=0')}${inp('yt','קישור ליוטיוב (לא חובה)','text','https://youtube.com/@channel',socUrl('yt',v.youtube),'dir=ltr')}${inp('ytf','מנויים ביוטיוב','number','800',nv(v.followers_yt),'min=0')}</div><div class='sech'>מחירון לפריט בודד (₪)</div><div class='g3'>${inp('pv','רילס אחד','number','600',nv(v.price_video),'min=0')}${inp('ps','סטורי אחד','number','150',nv(v.price_story),'min=0')}${inp('pp','פוסט אחד','number','300',nv(v.price_post),'min=0')}</div>${pkgHtml()}<div class='sech'>תיק עבודות</div>${inp('pf','קישור לתיק עבודות (לא חובה)','text','www.example.com',v.portfolio_url)}`};
 const readCr=()=>{
  const dn=val('dn');if(!dn)return {error:'נא למלא שם שיוצג בפרופיל'};
  const niches=picked('niches');if(!niches.length)return {error:'נא לבחור לפחות תחום תוכן אחד'};
- const ig=handleOf(val('ig')),tt=handleOf(val('tt')),yt=handleOf(val('yt'));
- if(!ig&&!tt&&!yt)return {error:'נא למלא לפחות חשבון אחד ברשת חברתית'};
- const nums={};for(const [k,id,l] of [['followers_ig','igf','עוקבים באינסטגרם'],['followers_tt','ttf','עוקבים בטיקטוק'],['followers_yt','ytf','מנויים ביוטיוב'],['price_story','ps','מחיר סטורי'],['price_post','pp','מחיר פוסט'],['price_video','pv','מחיר סרטון']]){const n=numOrNull(id);if(Number.isNaN(n))return {error:'הערך בשדה "'+l+'" אינו מספר תקין'};nums[k]=n}
+ const ig=parseSocial('ig','ig'),tt=parseSocial('tt','tt'),yt=parseSocial('yt','yt');
+ if(ig===null)return {error:'הקישור לאינסטגרם לא תקין. הדביקו קישור מהפרופיל, למשל https://instagram.com/username'};
+ if(tt===null)return {error:'הקישור לטיקטוק לא תקין. הדביקו קישור מהפרופיל, למשל https://tiktok.com/@username'};
+ if(yt===null)return {error:'הקישור ליוטיוב לא תקין'};
+ if(!ig&&!tt&&!yt)return {error:'נא להדביק לפחות קישור אחד לרשת חברתית, אינסטגרם או טיקטוק'};
+ const nums={};for(const [k,id,l] of [['followers_ig','igf','עוקבים באינסטגרם'],['followers_tt','ttf','עוקבים בטיקטוק'],['followers_yt','ytf','מנויים ביוטיוב'],['price_story','ps','מחיר סטורי'],['price_post','pp','מחיר פוסט'],['price_video','pv','מחיר רילס']]){const n=numOrNull(id);if(Number.isNaN(n))return {error:'הערך בשדה "'+l+'" אינו מספר תקין'};nums[k]=n}
  const pf=val('pf'),pu=normUrl(pf);if(pf&&!pu)return {error:'כתובת תיק העבודות לא תקינה'};
- return {d:{display_name:dn,city:val('city'),niches,bio:val('bio'),instagram:ig,tiktok:tt,youtube:yt,portfolio_url:pu||'',...nums}}};
+ return {d:{display_name:dn,city:val('city'),niches,bio:val('bio'),instagram:ig,tiktok:tt,youtube:yt,portfolio_url:pu||'',...nums},packages:PKGS.map(p=>({title:p.title,price:p.price,description:p.description,items:p.items}))}};
 
 function brandForm(){
  authShell('הרשמה למפרסמים','פותחים חשבון מותג, ומתחילים למצוא יוצרי תוכן ומשפיעני רשת שמתאימים לקמפיין.',
@@ -96,15 +131,15 @@ function brandForm(){
 function creatorForm(h){
  const years=[];for(let y=new Date().getFullYear()-18;y>=1940;y--)years.push(String(y));
  authShell('הרשמה ליוצרי תוכן ומשפיעני רשת','פותחים פרופיל, קובעים מחירון, ומתחילים לקבל הצעות ממותגים.',
- `<form id='sf' novalidate><div class='g2'><div class='fld'><label>שם מלא *</label><input id='fn' autocomplete='name' placeholder='שם פרטי ושם משפחה'></div>${sel('by','שנת לידה * (18 ומעלה)',years,'')}</div>${accountFields()}${crDetails({instagram:h})}<label class='chk'><input type='checkbox' id='tos'><span>קראתי ואני מסכים לתנאי השימוש ולמדיניות הפרטיות, ואני מאשר שאני בן או בת 18 ומעלה</span></label><div class='err' id='er'></div><button class='btn b1 full' id='sb'>יצירת פרופיל יוצר</button></form><p class='sub' style='margin-top:16px;text-align:center'>כבר רשומים? <a href='#/login' style='color:var(--sky2);font-weight:600'>התחברות</a> · <a href='#/signup'>חזרה לבחירת מסלול</a></p>`,1);
- bindChips();
+ `<form id='sf' novalidate><div class='g2'><div class='fld'><label>שם מלא *</label><input id='fn' autocomplete='name' placeholder='שם פרטי ושם משפחה'></div>${sel('by','שנת לידה * (18 ומעלה)',years,'')}</div>${accountFields()}${crDetails({instagram:handleOf(h)})}<label class='chk'><input type='checkbox' id='tos'><span>קראתי ואני מסכים לתנאי השימוש ולמדיניות הפרטיות, ואני מאשר שאני בן או בת 18 ומעלה</span></label><div class='err' id='er'></div><button class='btn b1 full' id='sb'>יצירת פרופיל יוצר</button></form><p class='sub' style='margin-top:16px;text-align:center'>כבר רשומים? <a href='#/login' style='color:var(--sky2);font-weight:600'>התחברות</a> · <a href='#/signup'>חזרה לבחירת מסלול</a></p>`,1);
+ bindChips();pkgInit([]);
  $('#sf').onsubmit=async e=>{e.preventDefault();
   const fn=val('fn');if(!fn)return showErr('נא למלא שם מלא');
   const by=val('by');if(!by)return showErr('נא לבחור שנת לידה');
   const ac=checkAccount();if(ac)return showErr(ac);
   const r=readCr();if(r.error)return showErr(r.error);
   if(!$('#tos').checked)return showErr('יש לאשר את תנאי השימוש ואת גיל 18 ומעלה');
-  r.d.phone=val('ph');r.d.birth_year=by;
+  r.d.phone=val('ph');r.d.birth_year=by;r.d.packages=r.packages;
   await doSignup('creator',val('em').toLowerCase(),$('#pw').value,fn,r.d,$('#sb'))}}
 
 async function doSignup(role,email,pw,full,details,btn){
@@ -157,9 +192,10 @@ R['/me']=async()=>{
  if(!pr){frame('#/me',`<div class='empty'>לא נמצא פרופיל לחשבון הזה.<br><br><button class='btn b3' id='lo2'>התנתקות</button></div>`);$('#lo2').onclick=logout;return}
  const isAdv=pr.role==='advertiser';
  const {data:det}=await sb.from(isAdv?'advertiser_profiles':'creator_profiles').select('*').eq('user_id',uid).maybeSingle();
+ let myPk=[];if(!isAdv){const {data:pk}=await sb.from('creator_packages').select('title,price,description,items').eq('user_id',uid).order('created_at');myPk=pk||[]}
  if(curPath()!=='/me')return;
  frame('#/me',`<div class='h2' style='font-size:30px'>הפרופיל שלי</div><div class='sub' style='margin-bottom:16px'><span class='rb'>${ROLE_HE[pr.role]}</span> · <span dir='ltr'>${E(session.user.email)}</span></div><div class='bc' style='max-width:780px'><form id='mf' novalidate><div class='g2'><div class='fld'><label>שם מלא${isAdv?' (איש קשר)':''}</label><input id='fn' value='${E(pr.full_name)}'></div>${inp('ph','טלפון','tel','',pr.phone||'')}</div>${isAdv?advDetails(det):crDetails(det)}<div class='err' id='er'></div><button class='btn b1'>שמירת שינויים</button> <button type='button' class='btn b3' id='lo2'>${ico('out')} התנתקות</button></form></div>`);
- bindChips();$('#lo2').onclick=logout;
+ bindChips();if(!isAdv)pkgInit(myPk);$('#lo2').onclick=logout;
  $('#mf').onsubmit=async e=>{e.preventDefault();
   const fn=val('fn');if(!fn)return showErr('נא למלא שם');
   const r=isAdv?readAdv():readCr();if(r.error)return showErr(r.error);
@@ -167,6 +203,8 @@ R['/me']=async()=>{
   if(a.error)return showErr(heError(a.error));
   const b=await sb.from(isAdv?'advertiser_profiles':'creator_profiles').update(r.d).eq('user_id',uid);
   if(b.error)return showErr(heError(b.error));
+  if(!isAdv){const dl=await sb.from('creator_packages').delete().eq('user_id',uid);if(dl.error)return showErr(heError(dl.error));
+   if(r.packages.length){const ins=await sb.from('creator_packages').insert(r.packages.map(p=>({user_id:uid,title:p.title,price:p.price,description:p.description||null,items:p.items})));if(ins.error)return showErr(heError(ins.error))}}
   const u=LS.g('user',{});u.n=fn;LS.s('user',u);toast('הפרופיל נשמר')}};
 
 async function logout(){if(sb)await sb.auth.signOut();LS.s('user',null);toast('התנתקתם');location.hash='#/'}
