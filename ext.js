@@ -1,6 +1,5 @@
 const SLOGAN="<div class='slogan'>מחברים בין משפיענים למפרסמים</div>";
-const FM={'noa-levi':'f1','amit-salomon':'m1','alon-peretz':'m1','dana-mor':'f2','tamar-ben':'f4','yoni-katz':'m1','shir-azulay':'f3','roee-gil':'m1','maya-sasson':'f2','ido-hadad':'m1','liel-avrahami':'f3','gali-oren':'f1'};
-const imgTag=id=>`<img class='pimg' alt='' src='faces/${FM[id]||'f1'}.jpg'>`;
+const imgTag=id=>`<img class='pimg' alt='' src='faces/${id}.jpg'>`;
 const fill=(p,id)=>{if(p&&!p.querySelector('.pimg'))p.innerHTML=imgTag(id)};
 const decorate=()=>{
  $$('a.cc').forEach(a=>fill($('.ph',a),a.getAttribute('href').split('/').pop()));
