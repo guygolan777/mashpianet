@@ -53,7 +53,7 @@ R['/signup']=q=>{
  if(t==='brand')return brandForm();
  if(t==='creator')return creatorForm(q.get('h')||'');
  const li=a=>a.map(x=>`<li>${x}</li>`).join('');
- authShell('הצטרפו למשפיענט','בחרו את המסלול שמתאים לכם. לכל מסלול טופס הרשמה משלו.',
+ authShell('הצטרפו למשפיענים','בחרו את המסלול שמתאים לכם. לכל מסלול טופס הרשמה משלו.',
  `<div class='roles'><a class='rolecard' href='#/signup?t=brand'><i>📣</i><b>אני מפרסם</b><span>מותג, עסק או סוכנות שמחפשים יוצרי תוכן ומשפיעני רשת לקמפיינים</span><ul>${li(['חיפוש יוצרים לפי תחום, פלטפורמה ותקציב','פרסום קמפיינים וקבלת הגשות','תשלום מאובטח בנאמנות'])}</ul><em class='btn b1'>המשך כמפרסם</em></a><a class='rolecard' href='#/signup?t=creator'><i>🎬</i><b>אני יוצר תוכן או משפיען רשת</b><span>רוצים לקבל הצעות ממותגים, לקבוע מחירון ולהרוויח מהתוכן</span><ul>${li(['פרופיל עם פורטפוליו וחשבונות ברשתות','מחירון משלכם, בלי משא ומתן מביך','קבלת תשלום אחרי אישור התוכן'])}</ul><em class='btn b2'>המשך כיוצר</em></a></div><p class='sub' style='margin-top:22px;text-align:center'>כבר רשומים? <a href='#/login' style='color:var(--sky2);font-weight:600'>התחברות</a> · <a href='#/'>חזרה לאתר</a></p>`,1);
  $('.auth .bc').classList.add('ctr')};
 
@@ -174,7 +174,7 @@ const readCr=()=>{
 
 function brandForm(){
  authShell('הרשמה למפרסמים','פותחים חשבון מותג, ומתחילים למצוא יוצרי תוכן ומשפיעני רשת שמתאימים לקמפיין.',
- `<form id='sf' novalidate><div class='fld'><label>שם איש הקשר *</label><input id='fn' autocomplete='name' placeholder='שם מלא'></div>${accountFields()}${advDetails()}<label class='chk'><input type='checkbox' id='tos'><span>קראתי ואני מסכים לתנאי השימוש ולמדיניות הפרטיות של משפיענט</span></label><div class='err' id='er'></div><button class='btn b1 full' id='sb'>יצירת חשבון מפרסם</button></form><p class='sub' style='margin-top:16px;text-align:center'>כבר רשומים? <a href='#/login' style='color:var(--sky2);font-weight:600'>התחברות</a> · <a href='#/signup'>חזרה לבחירת מסלול</a></p>`,1);
+ `<form id='sf' novalidate><div class='fld'><label>שם איש הקשר *</label><input id='fn' autocomplete='name' placeholder='שם מלא'></div>${accountFields()}${advDetails()}<label class='chk'><input type='checkbox' id='tos'><span>קראתי ואני מסכים לתנאי השימוש ולמדיניות הפרטיות של משפיענים</span></label><div class='err' id='er'></div><button class='btn b1 full' id='sb'>יצירת חשבון מפרסם</button></form><p class='sub' style='margin-top:16px;text-align:center'>כבר רשומים? <a href='#/login' style='color:var(--sky2);font-weight:600'>התחברות</a> · <a href='#/signup'>חזרה לבחירת מסלול</a></p>`,1);
  bindChips();
  $('#sf').onsubmit=async e=>{e.preventDefault();
   const fn=val('fn');if(!fn)return showErr('נא למלא שם איש קשר');
