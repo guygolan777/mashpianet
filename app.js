@@ -53,7 +53,7 @@ R['/']=()=>{
  frame('#/',`<div class='bento'>
  <div class='bc hero s4'><span class='eb'>מחברים בין יוצרי תוכן ומשפיעני רשת למפרסמים</span><h1>מצאו את הפנים של המותג שלכם</h1><p>עוברים מחיפוש אקראי להזמנה בטוחה. בוחרים יוצר, מסכמים על החבילה, ומשלמים רק כשהתוכן מאושר.</p><form class='find' id='hf'><select id='hp'><option value=''>כל הפלטפורמות</option>${Object.entries(PL).map(([k,v])=>`<option value='${k}'>${v}</option>`).join('')}</select><input id='hq' placeholder='למשל: ביוטי, טיולים, כושר'><button class='btn b1'>מצאו יוצרי תוכן ומשפיעני רשת</button></form><div class='tags'>${['ביוטי','אופנה','כושר','טיולים'].map(t=>`<span class='tg' data-q='${t}'>${t}</span>`).join('')}</div></div>
  <div class='bc s2'><div class='h2'>ארבעה צעדים להזמנה</div><ol class='steps'><li><div><b>מחפשים</b><span>לפי תחום, פלטפורמה ותקציב</span></div></li><li><div><b>משווים</b><span>חבילות ומחירים גלויים מראש</span></div></li><li><div><b>מזמינים</b><span>הכסף מוחזק בנאמנות</span></div></li><li><div><b>מאשרים</b><span>רק אז היוצר מקבל תשלום</span></div></li></ol></div>
- <div class='bc s6'><div class='h2'>יוצרי תוכן ומשפיעני רשת שכדאי להכיר</div><div class='sub'>פרופילים עם דירוג גבוה ותגובה מהירה</div><div class='rail'>${feat.map(card).join('')}</div></div>
+ <div class='bc s6'><div class='h2'>יוצרי תוכן ומשפיעני רשת שכדאי להכיר</div><div class='sub'>פרופילים עם דירוג גבוה ותגובה מהירה</div>${LS.g('user')?`<div class='rail'>${feat.map(card).join('')}</div>`:`<div class='lock'><div class='lkt'>${[1,2,3,4].map(()=>'<i></i>').join('')}</div><div class='lkm'><b>🔒 הפרופילים גלויים לחברים רשומים בלבד</b><p>הירשמו או התחברו כדי לראות את היוצרים ואת המחירונים שלהם.</p><a class='btn b1' href='#/signup'>הרשמה</a> <a class='btn b3' href='#/login'>התחברות</a></div></div>`}</div>
  <div class='bc s3'><div class='h2'>גלו לפי תחום</div><div class='cats'>${Object.keys(CAT).map(k=>`<div class='cat' data-c='${k}' style='background:${CATC[k]}'><div>${CATI[k]}</div>${CAT[k]}</div>`).join('')}</div></div>
  <div class='bc s3'><div class='h2'>איך נשמר הכסף שלכם</div><div class='tl'><div><i>1</i><span><b>משלמים בהזמנה</b>הסכום עובר לחשבון נאמנות</span></div><div><i>2</i><span><b>היוצר מוסר תוכן</b>אתם בודקים ומאשרים</span></div><div><i>3</i><span><b>התשלום משתחרר</b>אין חשבוניות ואין מרדפים</span></div></div></div>
  <div class='bc dark s3'><div class='h2'>יוצרי תוכן? משפיעני רשת?</div><p>הגדירו מחירים לכל שירות ותנו למותגים למצוא אתכם. בלי פניות קרות ובלי משא ומתן מביך.</p><a class='btn b2' style='margin-top:16px' href='#/signup?t=creator'>הירשמו וקבלו פניות לשיתופי פעולה</a></div>
@@ -191,6 +191,7 @@ function route(){
  const h=location.hash.slice(1)||'/';const qi=h.indexOf('?');const path=qi<0?h:h.slice(0,qi);const q=new URLSearchParams(qi<0?'':h.slice(qi+1));
  const parts=path.split('/').filter(Boolean);
  if(!LS.g('user')&&['campaigns','orders','chat','saved','reports','studio','settings','new','me','cart','admin'].includes(parts[0])){if(parts[0]!=='me'){location.replace('#/login');return}}
+ if(!LS.g('user')&&(parts[0]==='creators'||parts[0]==='creator')){toast('הפרופילים גלויים לחברים רשומים בלבד');location.replace('#/login');return}
  if(parts[0]==='creator'&&parts[1])return R['/creator'](q,parts[1]);
  (R['/'+(parts[0]||'')]||R['/'])(q);
 }
