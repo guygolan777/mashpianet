@@ -49,13 +49,8 @@ function authShell(title,sub,inner,wide){
  window.scrollTo(0,0)}
 
 R['/signup']=q=>{
- const t=q.get('t');
- if(t==='brand')return brandForm();
- if(t==='creator')return creatorForm(q.get('h')||'');
- const li=a=>a.map(x=>`<li>${x}</li>`).join('');
- authShell('הצטרפו למשפיענים','בחרו את המסלול שמתאים לכם. לכל מסלול טופס הרשמה משלו.',
- `<div class='roles'><a class='rolecard' href='#/signup?t=brand'><i>📣</i><b>אני מפרסם</b><span>מותג, עסק או סוכנות שמחפשים יוצרי תוכן ומשפיעני רשת לקמפיינים</span><ul>${li(['חיפוש יוצרים לפי תחום, פלטפורמה ותקציב','פרסום קמפיינים וקבלת הגשות','תשלום מאובטח בנאמנות'])}</ul><em class='btn b1'>המשך כמפרסם</em></a><a class='rolecard' href='#/signup?t=creator'><i>🎬</i><b>אני יוצר תוכן או משפיען רשת</b><span>רוצים לקבל הצעות ממותגים, לקבוע מחירון ולהרוויח מהתוכן</span><ul>${li(['פרופיל עם פורטפוליו וחשבונות ברשתות','מחירון משלכם, בלי משא ומתן מביך','קבלת תשלום אחרי אישור התוכן'])}</ul><em class='btn b2'>המשך כיוצר</em></a></div><p class='sub' style='margin-top:22px;text-align:center'>כבר רשומים? <a href='#/login' style='color:var(--sky2);font-weight:600'>התחברות</a> · <a href='#/'>חזרה לאתר</a></p>`,1);
- $('.auth .bc').classList.add('ctr')};
+ if(q.get('t')==='brand'){authShell('ההרשמה למפרסמים תיפתח בקרוב','בשלב זה ההרשמה פתוחה ליוצרי תוכן ומשפיעני רשת בלבד. נעדכן כשנפתח את האתר גם למפרסמים.',`<a class='btn b2 full' href='#/signup'>להרשמה כיוצר תוכן / משפיען</a><p class='sub' style='margin-top:16px;text-align:center'>כבר רשומים? <a href='#/login' style='color:var(--sky2);font-weight:600'>התחברות</a></p>`,1);$('.auth .bc').classList.add('ctr');return}
+ return creatorForm(q.get('h')||'')};
 
 const accountFields=()=>`<div class='sech'>פרטי התחברות</div><div class='g2'>${inp('em','אימייל','email','name@example.com','','autocomplete=email')}${inp('ph','טלפון (לא חובה)','tel','050-0000000','','autocomplete=tel')}${inp('pw','סיסמה','password','לפחות 8 תווים','','autocomplete=new-password minlength=8')}${inp('pw2','אימות סיסמה','password','הקלידו שוב','','autocomplete=new-password')}</div>`;
 const checkAccount=()=>{
