@@ -54,10 +54,11 @@ R['/signup']=q=>{
  if(q.get('t')==='brand'){authShell('ההרשמה למפרסמים תיפתח בקרוב','בשלב זה ההרשמה פתוחה ליוצרי תוכן ומשפיעני רשת בלבד. נעדכן כשנפתח את האתר גם למפרסמים.',`<a class='btn b2 full' href='#/signup'>להרשמה כיוצר תוכן / משפיען</a><p class='sub' style='margin-top:16px;text-align:center'>כבר רשומים? <a href='#/login' style='color:var(--sky2);font-weight:600'>התחברות</a></p>`,1);$('.auth .bc').classList.add('ctr');return}
  return creatorForm(q.get('h')||'')};
 
-const accountFields=()=>`<div class='sech'>פרטי התחברות</div><div class='g2'>${inp('em','אימייל','email','name@example.com','','autocomplete=email')}${inp('ph','טלפון (לא חובה)','tel','050-0000000','','autocomplete=tel')}${inp('pw','סיסמה','password','לפחות 8 תווים','','autocomplete=new-password minlength=8')}${inp('pw2','אימות סיסמה','password','הקלידו שוב','','autocomplete=new-password')}</div>`;
+const accountFields=()=>`<div class='sech'>פרטי התחברות</div><div class='g2'>${inp('em','אימייל','email','name@example.com','','autocomplete=email')}${inp('ph','טלפון *','tel','050-0000000','','autocomplete=tel')}${inp('pw','סיסמה','password','לפחות 8 תווים','','autocomplete=new-password minlength=8')}${inp('pw2','אימות סיסמה','password','הקלידו שוב','','autocomplete=new-password')}</div>`;
 const checkAccount=()=>{
  const em=val('em').toLowerCase(),pw=$('#pw').value,pw2=$('#pw2').value;
  if(!okEmail(em))return 'כתובת האימייל לא תקינה';
+ const ph=val('ph').replace(/[\s\-()]/g,'');if(!ph)return 'נא למלא מספר טלפון';if(!/^\+?\d{9,14}$/.test(ph))return 'מספר הטלפון לא תקין';
  if(pw.length<8)return 'הסיסמה חייבת להכיל לפחות 8 תווים';
  if(pw!==pw2)return 'הסיסמאות אינן זהות';
  return ''};
