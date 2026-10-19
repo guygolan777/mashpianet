@@ -34,7 +34,7 @@ function cartN(){return LS.g('cart',[]).length}
 function toast(m){let t=$('.toast');if(!t){t=document.createElement('div');t.className='toast';document.body.append(t)}t.textContent=m;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2200)}
 function frame(route,html){
  const root=$('#root');const mini=LS.g('mini',false);
- const nav=NAV.filter(g=>LS.g('user')||g[0]==='גילוי').map(g=>`<div class='grp'>${g[0]}</div>`+g[1].map(i=>`<a class='nv ${route===i[0]?'on':''}' href='${i[0]}'>${ico(i[1])}<span class='lbl'>${i[2]}</span>${i[0]==='#/orders'?`<b>${orders().filter(o=>o.st==='rev').length||''}</b>`:''}</a>`).join('')).join('');
+ const nav=[...NAV.filter(g=>LS.g('user')||g[0]==='גילוי'),...((LS.g('user')||{}).a?[['ניהול',[['#/admin','gear','מערכת ניהול']]]]:[])].map(g=>`<div class='grp'>${g[0]}</div>`+g[1].map(i=>`<a class='nv ${route===i[0]?'on':''}' href='${i[0]}'>${ico(i[1])}<span class='lbl'>${i[2]}</span>${i[0]==='#/orders'?`<b>${orders().filter(o=>o.st==='rev').length||''}</b>`:''}</a>`).join('')).join('');
  root.className=mini?'mini':'';
  root.innerHTML=`<div class='shell'><aside class='side'><div class='brand'><i>מ</i><span>${BRAND}</span><button class='tog' id='tog'>${ico('menu')}</button></div>${nav}<div class='sidecard'><b>רוצים להצטרף כיוצרים?</b>פתחו פרופיל, הגדירו מחירים והתחילו לקבל הצעות.<br><a href='#/join'>בואו נתחיל</a></div></aside><div class='main'><div class='top'><button class='burger ic' id='bg'>${ico('menu')}</button><form class='sbox' id='gs'>${ico('search')}<input id='gq' placeholder='חפשו יוצר תוכן / משפיען רשת, תחום או עיר'><button class='btn b2 sm'>חיפוש</button></form><span style='flex:1'></span><a class='ic' href='#/cart'>${ico('cart')}${cartN()?`<em dir='ltr'>${cartN()}</em>`:''}</a>${LS.g('user',null)?`<span class='uname'>${esc(LS.g('user').n||'')}</span><a class='av' href='#/me' title='הפרופיל שלי' style='background:${gr('me')}'></a>`:`<a class='btn b3 sm' href='#/login'>התחברות</a><a class='btn b1 sm' href='#/signup'>הרשמה</a>`}</div><div class='page'>${html}</div></div></div>`;
  $('#tog').onclick=()=>{LS.s('mini',!LS.g('mini',false));$('#root').classList.toggle('mini')};
@@ -190,7 +190,7 @@ R['/help']=()=>{const Q=[['איך עובד התשלום?','משלמים בעת �
 function route(){
  const h=location.hash.slice(1)||'/';const qi=h.indexOf('?');const path=qi<0?h:h.slice(0,qi);const q=new URLSearchParams(qi<0?'':h.slice(qi+1));
  const parts=path.split('/').filter(Boolean);
- if(!LS.g('user')&&['campaigns','orders','chat','saved','reports','studio','settings','new','me','cart'].includes(parts[0])){if(parts[0]!=='me'){location.replace('#/login');return}}
+ if(!LS.g('user')&&['campaigns','orders','chat','saved','reports','studio','settings','new','me','cart','admin'].includes(parts[0])){if(parts[0]!=='me'){location.replace('#/login');return}}
  if(parts[0]==='creator'&&parts[1])return R['/creator'](q,parts[1]);
  (R['/'+(parts[0]||'')]||R['/'])(q);
 }

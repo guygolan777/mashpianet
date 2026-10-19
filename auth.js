@@ -36,9 +36,11 @@ const heError=er=>{const m=(er&&er.message||'').toLowerCase();
 
 async function loadProfile(session){
  if(!sb||!session){LS.s('user',null);return null}
- const {data,error}=await sb.from('profiles').select('role,full_name').eq('id',session.user.id).maybeSingle();
+ const {data,error}=await sb.from('profiles').select('role,full_name,status').eq('id',session.user.id).maybeSingle();
  if(error||!data){LS.s('user',{n:session.user.email,r:null,e:session.user.email});return null}
- LS.s('user',{n:data.full_name||session.user.email,r:data.role,e:session.user.email});
+ if(data.status==='suspended'){await sb.auth.signOut();LS.s('user',null);toast('החשבון הושעה. לפרטים צרו קשר עם התמיכה');return null}
+ const {data:ad}=await sb.from('admins').select('user_id').eq('user_id',session.user.id).maybeSingle();
+ LS.s('user',{n:data.full_name||session.user.email,r:data.role,e:session.user.email,a:!!ad});
  return data}
 const homeFor=r=>r==='creator'?'#/me':'#/campaigns';
 const curPath=()=>(location.hash.slice(1)||'/').split('?')[0];
