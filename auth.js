@@ -181,7 +181,7 @@ function brandForm(){
   await doSignup('advertiser',val('em').toLowerCase(),$('#pw').value,fn,r.d,$('#sb'))}}
 
 function creatorForm(h){
- authShell('הרשמה ליוצרי תוכן ומשפיעני רשת','שלב 1 מתוך 2: פותחים פרופיל. מיד אחרי ההרשמה בונים את המחירון והחבילות שלכם.',
+ authShell('הרשמה ליוצרי תוכן ומשפיעני רשת',`<span class='steps2'><b class='on'>1</b> פרופיל <i></i><b>2</b> מחירון וחבילות</span>`,
  `<form id='sf' novalidate><div class='fld'><label>שם מלא *</label><input id='fn' autocomplete='name' placeholder='שם פרטי ושם משפחה'></div>${accountFields()}${crDetails({instagram:handleOf(h)})}<label class='chk'><input type='checkbox' id='tos'><span>קראתי ואני מסכים לתנאי השימוש ולמדיניות הפרטיות, ואני מאשר שאני בן או בת 18 ומעלה</span></label><div class='err' id='er'></div><button class='btn b1 full' id='sb'>יצירת פרופיל והמשך לבניית מחירון</button></form><p class='sub' style='margin-top:16px;text-align:center'>כבר רשומים? <a href='#/login' style='color:var(--sky2);font-weight:600'>התחברות</a> · <a href='#/signup'>חזרה לבחירת מסלול</a></p>`,1);
  bindChips();worksInit([]);
  $('#sf').onsubmit=async e=>{e.preventDefault();
