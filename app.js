@@ -67,6 +67,7 @@ R['/']=()=>{
  $$('.cat').forEach(t=>t.onclick=()=>location.hash='#/creators?c='+t.dataset.c);
 };
 R['/creators']=q=>{
+ if(!LS.g('user')){frame('#/creators',`<div class='h2' style='font-size:30px'>יוצרי תוכן ומשפיעני רשת</div><div class='sub'>מצאו את היוצרים והמשפיענים שמתאימים למותג שלכם</div><div class='lock' style='margin-top:20px'><div class='lkt lkg'>${Array.from({length:8},()=>'<i></i>').join('')}</div><div class='lkm'><b>${SIN.lock} הפרופילים והמחירונים גלויים לחברים רשומים בלבד</b><p>הירשמו כמפרסמים כדי לחפש יוצרים, לראות מחירונים ולהזמין שיתופי פעולה.</p><div><a class='btn b1' href='#/signup?t=brand'>הרשמה כמפרסמים</a> <a class='btn b3' href='#/login'>התחברות</a></div></div></div>`);return}
  let st={p:q.get('p')||'',q:q.get('q')||'',c:q.get('c')||'',mx:'',so:'',v:'grid'};const fav=new Set(LS.g('fav',[]));
  frame('#/creators',`<div class='h2' style='font-size:30px'>יוצרי תוכן ומשפיעני רשת</div><div class='sub' id='cnt'></div><div class='pill' id='pl'></div><div class='pill'><input class='sel' id='kq' placeholder='חיפוש חופשי' value='${st.q}'><select class='sel' id='cc'><option value=''>כל התחומים</option>${Object.entries(CAT).map(([k,v])=>`<option value='${k}'>${v}</option>`).join('')}</select><select class='sel' id='mx'><option value=''>כל המחירים</option><option value='60'>עד ₪220</option><option value='100'>עד ₪360</option><option value='200'>עד ₪720</option></select><select class='sel' id='so'><option value=''>מיון: מומלצים</option><option value='a'>מחיר עולה</option><option value='d'>מחיר יורד</option></select><button class='ch' id='vw'>תצוגת רשימה</button></div><div id='out'></div>`);
  $('#cc').value=st.c;
@@ -194,7 +195,7 @@ function route(){
  const h=location.hash.slice(1)||'/';const qi=h.indexOf('?');const path=qi<0?h:h.slice(0,qi);const q=new URLSearchParams(qi<0?'':h.slice(qi+1));
  const parts=path.split('/').filter(Boolean);
  if(!LS.g('user')&&['campaigns','orders','chat','saved','reports','studio','settings','new','me','cart','admin'].includes(parts[0])){if(parts[0]!=='me'){location.replace('#/login');return}}
- if(!LS.g('user')&&(parts[0]==='creators'||parts[0]==='creator')){toast('הפרופילים גלויים לחברים רשומים בלבד');location.replace('#/login');return}
+ if(!LS.g('user')&&parts[0]==='creator'){toast('הפרופילים גלויים לחברים רשומים בלבד');location.replace('#/creators');return}
  if(parts[0]==='creator'&&parts[1])return R['/creator'](q,parts[1]);
  (R['/'+(parts[0]||'')]||R['/'])(q);
 }
