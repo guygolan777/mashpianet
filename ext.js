@@ -1,5 +1,5 @@
 const SLOGAN="<div class='slogan'>מחברים בין משפיענים למפרסמים</div>";
-const imgTag=id=>`<img class='pimg' alt='' src='faces/${id}.jpg'>`;
+const imgTag=id=>`<img class='pimg' alt='' src='faces/${id==='example'?'noa-levi':id}.jpg'>`;
 const fill=(p,id)=>{if(p&&!p.querySelector('.pimg'))p.innerHTML=imgTag(id)};
 const decorate=()=>{
  $$('a.cc').forEach(a=>fill($('.ph',a),a.getAttribute('href').split('/').pop()));
