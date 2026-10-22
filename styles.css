@@ -119,3 +119,4 @@ svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.9;stroke
 .pinfo{padding-top:62px!important}.pact{padding-top:62px}.phead{align-items:flex-start!important}@media(max-width:700px){.pinfo,.pact{padding-top:52px!important}}
 @media(max-width:700px){.pact{padding-top:0!important;width:100%}.pact .btn{flex:1}.pinfo{min-width:0}}
 .hero h1.h1s{font-size:clamp(28px,3.4vw,46px)!important;line-height:1.18;letter-spacing:-1px}.hero h1.h1s em{font-style:normal;color:var(--sky2)}
+.bc .exw{grid-template-columns:1fr 240px;align-items:end}.bc .exs{align-self:center}@media(min-width:701px){.bc .exw{max-width:640px;margin:14px auto 0;gap:30px;align-items:center}}
