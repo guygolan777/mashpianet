@@ -51,9 +51,13 @@ function authShell(title,sub,inner,wide){
  window.scrollTo(0,0)}
 
 R['/signup']=q=>{
- if(q.get('t')==='brand'){authShell('ההרשמה למפרסמים תיפתח בקרוב','בשלב זה ההרשמה פתוחה ליוצרי תוכן ומשפיעני רשת בלבד. נעדכן כשנפתח את האתר גם למפרסמים.',`<a class='btn b2 full' href='#/signup'>להרשמה כיוצר תוכן / משפיען</a><p class='sub' style='margin-top:16px;text-align:center'>כבר רשומים? <a href='#/login' style='color:var(--sky2);font-weight:600'>התחברות</a></p>`,1);$('.auth .bc').classList.add('ctr');return}
- return creatorForm(q.get('h')||'')};
-
+ const t=q.get('t');
+ if(t==='brand')return brandForm();
+ if(t==='creator')return creatorForm(q.get('h')||'');
+ const li=a=>a.map(x=>`<li>${x}</li>`).join('');
+ authShell('הצטרפו למשפיענים','בחרו את המסלול שמתאים לכם. לכל מסלול טופס הרשמה משלו.',
+ `<div class='roles'><a class='rolecard' href='#/signup?t=brand'><i>${SI("<path d='M3 11v2a1 1 0 0 0 1 1h2l5 4V6L6 10H4a1 1 0 0 0-1 1z'/><path d='M15.5 8.5a5 5 0 0 1 0 7M18 6a8.5 8.5 0 0 1 0 12'/>")}</i><b>אני מפרסם</b><span>מותג, עסק או סוכנות שמחפשים יוצרי תוכן ומשפיעני רשת לקמפיינים</span><ul>${li(['איתור יוצרים לפי תחום, פלטפורמה ותקציב','פרסום קמפיין וקבלת הגשות מיוצרים','מחירון שקוף מראש'])}</ul><em class='btn b1'>המשך כמפרסם</em></a><a class='rolecard' href='#/signup?t=creator'><i>${SI("<rect x='3' y='5' width='18' height='14' rx='3'/><circle cx='12' cy='12' r='3.2'/><path d='M17 8.5h.01'/>")}</i><b>אני יוצר תוכן או משפיען רשת</b><span>רוצים לקבל הצעות ממותגים, לקבוע מחירון ולהרוויח מהתוכן</span><ul>${li(['פרופיל עם עבודות וחשבונות ברשתות','מחירון משלכם, בלי משא ומתן מביך','הגשת מועמדות לקמפיינים פתוחים'])}</ul><em class='btn b2'>המשך כיוצר</em></a></div><p class='sub' style='margin-top:18px;text-align:center'>כבר רשומים? <a href='#/login' style='color:var(--sky2);font-weight:600'>התחברות</a></p>`,1);
+ $('.auth .bc').classList.add('ctr')};
 const accountFields=()=>`<div class='sech'>פרטי התחברות</div><div class='g2'>${inp('em','אימייל','email','name@example.com','','autocomplete=email')}${inp('ph','טלפון *','tel','050-0000000','','autocomplete=tel')}${inp('pw','סיסמה','password','לפחות 8 תווים','','autocomplete=new-password minlength=8')}${inp('pw2','אימות סיסמה','password','הקלידו שוב','','autocomplete=new-password')}</div>`;
 const checkAccount=()=>{
  const em=val('em').toLowerCase(),pw=$('#pw').value,pw2=$('#pw2').value;

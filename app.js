@@ -37,13 +37,13 @@ const NAV=[['גילוי',[['#/','home','בית'],['#/creators','users','איתו
 function menuFor(u){
  const H=['#/','home','בית'],HELP=['#/help','help','עזרה'],FIND=['#/creators','users','איתור משפיענים'];
  if(!u)return [['גילוי',[H,FIND,['#/join','spark','ליוצרים'],HELP]]];
- if(u.r==='creator')return [['היוצר שלי',[H,['#/me','users','הפרופיל שלי'],['#/studio','lay','סטודיו יוצר'],['#/orders','bag','הזמנות'],['#/chat','chat','הודעות']]],['חשבון',[['#/settings','gear','הגדרות'],HELP]]];
+ if(u.r==='creator')return [['היוצר שלי',[H,['#/me','users','הפרופיל שלי'],['#/studio','lay','סטודיו יוצר'],['#/open','mega','קמפיינים פתוחים'],['#/orders','bag','הזמנות'],['#/chat','chat','הודעות']]],['חשבון',[['#/settings','gear','הגדרות'],HELP]]];
  return [['גילוי',[H,FIND,HELP]],['המותג שלי',[['#/campaigns','mega','קמפיינים'],['#/orders','bag','הזמנות'],['#/chat','chat','הודעות'],['#/saved','heart','שמורים'],['#/reports','chart','דוחות']]],['חשבון',[['#/me','users','הפרופיל שלי'],['#/settings','gear','הגדרות']]]]}
 function cartN(){return LS.g('cart',[]).length}
 function toast(m){let t=$('.toast');if(!t){t=document.createElement('div');t.className='toast';document.body.append(t)}t.textContent=m;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2200)}
 function frame(route,html){
  const root=$('#root');const mini=LS.g('mini',false);
- const U=LS.g('user',null),isCr=!!U&&U.r==='creator';const nav=[...menuFor(U),...((U||{}).a?[['ניהול',[['#/admin','gear','מערכת ניהול']]]]:[])].map(g=>`<div class='grp'>${g[0]}</div>`+g[1].map(i=>`<a class='nv ${route===i[0]?'on':''}' href='${i[0]}'>${ico(i[1])}<span class='lbl'>${i[2]}</span>${i[0]==='#/orders'?`<b>${orders().filter(o=>o.st==='rev').length||''}</b>`:''}</a>`).join('')).join('');
+ const U=LS.g('user',null),isCr=!!U&&U.r==='creator';const nav=[...menuFor(U),...((U||{}).a?[['ניהול',[['#/admin','gear','מערכת ניהול']]]]:[])].map(g=>`<div class='grp'>${g[0]}</div>`+g[1].map(i=>`<a class='nv ${route===i[0]?'on':''}' href='${i[0]}'>${ico(i[1])}<span class='lbl'>${i[2]}</span>${i[0]==='#/orders'&&orders().filter(o=>o.st==='rev').length?`<b>${orders().filter(o=>o.st==='rev').length}</b>`:''}</a>`).join('')).join('');
  root.className=mini?'mini':'';
  root.innerHTML=`<div class='shell'><aside class='side'><div class='brand'><i>${LOGO}</i><span>${BRAND}</span><button class='tog' id='tog'>${ico('menu')}</button></div>${nav}${U?'':`<div class='sidecard'><b>רוצים להצטרף כיוצרים?</b>פתחו פרופיל, הגדירו מחירים והתחילו לקבל הצעות.<br><a href='#/join'>בואו נתחיל</a></div>`}</aside><div class='main'><div class='top'><button class='burger ic' id='bg'>${ico('menu')}</button>${isCr?'':`<form class='sbox' id='gs'>${ico('search')}<input id='gq' placeholder='חפשו יוצר תוכן / משפיען רשת, תחום או עיר'><button class='btn b2 sm'>חיפוש</button></form>`}<span style='flex:1'></span>${isCr?'':`<a class='ic' href='#/cart'>${ico('cart')}${cartN()?`<em dir='ltr'>${cartN()}</em>`:''}</a>`}${LS.g('user',null)?`<span class='uname'>${esc(LS.g('user').n||'')}</span><a class='av' href='#/me' title='הפרופיל שלי' style='background:${gr('me')}'></a>`:`<a class='btn b3 sm' href='#/login'>התחברות</a><a class='btn b1 sm' href='#/signup'>הרשמה</a>`}</div><div class='page'>${html}</div></div></div>`;
  $('#tog').onclick=()=>{LS.s('mini',!LS.g('mini',false));$('#root').classList.toggle('mini')};
@@ -154,7 +154,7 @@ R['/new']=()=>{
  const est=()=>{const m=CR.filter(c=>(!d.pl.length||d.pl.includes(c.p))&&(!d.ni.length||d.ni.includes(CAT[c.ct])));return [m.length,m.reduce((a,c)=>a+parseF(c.f),0)]};
  const upd=()=>{const e=est();const a=$('#e1');if(a){a.textContent=e[0];$('#e2').textContent=fmtN(e[1])}};
  const draw=()=>{
-  const S=LS.g('settings',{n:'המותג שלי',e:'brand@example.com'});
+  const _u=LS.g('user')||{};const S=LS.g('settings',{n:_u.n||'',e:_u.e||''});
   const ch=(arr,k,key)=>arr.map(x=>`<button class='ch ${d[key].includes(k?x[0]:x)?'on':''}' data-${key}='${k?x[0]:x}'>${k?x[1]:x}</button>`).join('');
   frame('#/campaigns',`<div class='dr'><aside class='drs'><div class='bc'><div class='av pav' style='position:static;margin:0 0 12px;background:${gr('me')}'>${esc(S.n)[0]}</div><b style='font-size:18px'>${esc(S.n)}</b><div class='sub'>${esc(S.e)}</div><a class='btn b3 sm full' style='margin-top:12px' href='#/settings'>עריכת פרופיל המותג</a></div><div class='bc'><b>הוסיפו לקמפיין</b><div class='sub' style='margin-bottom:10px'>סעיפים שמגדילים את אחוז ההיענות</div><button class='btn b3 sm full' data-x='ex'>${d.ex?'✓ ':'＋ '}דוגמאות לתוכן</button><button class='btn b3 sm full' data-x='sq'>${d.sq?'✓ ':'＋ '}שאלות סינון ליוצרים</button><button class='btn b3 sm full' data-x='att'>${d.att?'✓ ':'＋ '}קבצים מצורפים</button></div></aside><div class='drm'>
   <div class='bc'><div class='fld'><label>שם הקמפיין</label><input id='dt' value='${esc(d.t)}' placeholder='למשל: השקת קולקציית סתיו'></div><label style='font-weight:600'>באילו פלטפורמות הקמפיין יפורסם</label><div class='pill' style='margin-top:8px'>${ch(Object.entries(PL),1,'pl')}</div></div>
@@ -163,7 +163,6 @@ R['/new']=()=>{
   ${d.ex?`<div class='bc'><div class='fld'><label>דוגמאות לתוכן שאהבתם</label><input id='dx' value='${esc(d.exv)}' placeholder='הדביקו קישורים'></div></div>`:''}${d.sq?`<div class='bc'><div class='fld'><label>שאלת סינון</label><input id='ds' value='${esc(d.sqv)}' placeholder='למשל: האם עבדתם בעבר עם מותגי מזון?'></div></div>`:''}${d.att?`<div class='bc'><div class='fld'><label>קבצים מצורפים</label><input type='file' multiple></div></div>`:''}
   <div class='bc'><div class='h2'>התאמת יוצרים</div><div class='fld'><label>טווח גילאים של היוצר</label><select id='dg'>${['18-24','18-34','25-44','כל הגילאים'].map(x=>`<option ${x===d.ages?'selected':''}>${x}</option>`).join('')}</select></div><label style='font-weight:600'>תחומים</label><div class='pill' style='margin-top:8px'>${ch(NICHES,0,'ni')}</div></div>
   <div class='bc'><div class='h2'>תקציב ולוח זמנים</div><div class='two'><div class='fld'><label>תקציב ליוצר (₪)</label><input type='number' id='db' min='20' value='${d.br}'></div><div class='fld'><label>ימים עד הגשה</label><input type='number' id='dy' min='1' value='${d.days}'></div></div></div>
-  <div class='bc estb'><div class='h2'>תוצאות משוערות</div><div class='two'><div><b id='e1' class='bign'>0</b><div class='sub'>יוצרים שמתאימים להגדרות</div></div><div><b id='e2' class='bign'>0</b><div class='sub'>סך העוקבים שתגיעו אליהם</div></div></div></div>
   <div class='pubr'><a class='btn b3' href='#/campaigns'>ביטול</a><button class='btn b1' id='pub'>פרסום הקמפיין</button></div></div></div>`);
   const bind=(i,k,n)=>{const e=$(i);if(e)e.oninput=()=>{d[k]=n?+e.value:e.value}};
   bind('#dt','t');bind('#da','about');bind('#dd','desc');bind('#df','fmt');bind('#dl','len');bind('#dg','ages');bind('#db','br',1);bind('#dy','days',1);bind('#dx','exv');bind('#ds','sqv');
@@ -172,16 +171,13 @@ R['/new']=()=>{
   $$('[data-ni]').forEach(b=>b.onclick=()=>{const k=b.dataset.ni;d.ni=d.ni.includes(k)?d.ni.filter(x=>x!==k):[...d.ni,k];draw()});
   $$('[data-x]').forEach(b=>b.onclick=()=>{d[b.dataset.x]=d[b.dataset.x]?0:1;draw()});
   $('#dc').onchange=e=>{const f=e.target.files[0];if(!f)return;if(f.size>10485760||!/^image/.test(f.type))return toast('קובץ לא תקין: עד 10MB, תמונה בלבד');const r=new FileReader();r.onload=()=>{d.cover=r.result;draw()};r.readAsDataURL(f)};
-  $('#pub').onclick=()=>{if(!d.t.trim())return toast('נא לתת שם לקמפיין');const l=camps();l.unshift({id:Date.now(),t:d.t,b:d.fmt+' · '+d.len+' · ₪'+d.br+' ליוצר',tg:[...d.pl.map(k=>PL[k]),...d.ni.slice(0,2)],a:0,o:1});LS.s('camps',l);location.hash='#/campaigns';setTimeout(()=>toast('הקמפיין פורסם'),100)};
-  upd();
- };
- frame('#/campaigns',`<div class='pg'><div class='h2' style='font-size:30px'>קמפיין חדש</div></div>`);
- const m=modal(`<h3>ספרו בקצרה על הקמפיין</h3><p class='sub'>תארו מה אתם מקדמים ומה חשוב לכם. נבנה מזה טיוטה שאפשר לערוך.</p><textarea id='bf' placeholder='למשל: אנחנו משיקים קרם פנים טבעי ומחפשים יוצרות ביוטי שיצלמו סרטון ניסיון אמיתי'></textarea><div class='mrow'><button class='btn b3 sm' id='upf'>${SI("<path d='M21 11.5l-8.5 8.5a5 5 0 0 1-7-7l8.5-8.5a3.3 3.3 0 0 1 4.7 4.7l-8.5 8.5a1.7 1.7 0 0 1-2.4-2.4L15 7'/>")} צרפו קבצים או מדיה</button><button class='btn b3 sm' id='web'>${SI("<path d='M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1'/><path d='M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1'/>")} הוסיפו אתר</button></div><input type='file' id='fi' multiple style='display:none'><input id='wu' placeholder='כתובת האתר' style='display:none;margin-bottom:12px'><button class='btn b1 full' id='af'>${SIC.beauty} מלאו לי את הטיוטה</button><div class='or'>או</div><button class='btn b3 full' id='sb'>התחילו מאפס</button>`);
- $('#upf').onclick=()=>$('#fi').click();
- $('#fi').onchange=e=>toast(e.target.files.length+' קבצים צורפו');
- $('#web').onclick=()=>{$('#wu').style.display='block'};
- $('#sb').onclick=()=>{m.remove();draw();toast('נוצרה טיוטת קמפיין')};
- $('#af').onclick=()=>{const b=$('#bf').value.trim();if(!b)return toast('כתבו כמה מילים על הקמפיין');d.about=b;d.t=b.slice(0,40);const k={אינסטגרם:'ig',טיקטוק:'tt',יוטיוב:'yt',UGC:'ugc'};const f=Object.keys(k).filter(x=>b.includes(x)).map(x=>k[x]);if(f.length)d.pl=f;d.ni=NICHES.filter(x=>b.includes(x));m.remove();draw();toast('נוצרה טיוטת קמפיין')};
+  $('#pub').onclick=async()=>{if(!d.t.trim())return toast('נא לתת שם לקמפיין');if(!d.pl.length)return toast('בחרו לפחות פלטפורמה אחת');if(!(d.br>=0))return toast('תקציב לא תקין');const btn=$('#pub');btn.disabled=true;const row={title:d.t.trim().slice(0,160),brief:d.about.trim().slice(0,3000),platforms:d.pl,niches:d.ni,format:d.fmt,length:d.len,guidelines:d.desc.trim().slice(0,3000),ages:d.ages,budget_per_creator:Math.round(d.br),days:Math.round(d.days)};const {error}=await sb.from('campaigns').insert(row);btn.disabled=false;if(error)return toast('לא הצלחנו לפרסם: '+error.message);location.hash='#/campaigns';setTimeout(()=>toast('הקמפיין פורסם ויוצרים יכולים להגיש מועמדות'),100)};
+  };
+ const EXS={"יופי וטיפוח": "אנחנו משיקים קרם פנים טבעי ומחפשים יוצרות ביוטי שיצלמו סרטון ניסיון אמיתי באינסטגרם.", "אפליקציה": "אנחנו משיקים אפליקציה חדשה ומחפשים יוצרי תוכן שיציגו אותה בסרטון קצר בטיקטוק ובאינסטגרם.", "פיננסים": "חברת פינטק מחפשת יוצרי תוכן שיסבירו בצורה פשוטה על חיסכון חכם, בסרטון של עד דקה.", "מסעדה": "מסעדה חדשה בתל אביב מחפשת יוצרי אוכל שיתעדו ארוחה וימליצו עליה באינסטגרם.", "אלקטרוניקה": "אנחנו מוכרים אוזניות אלחוטיות ומחפשים יוצרי טכנולוגיה לסרטון סקירה ביוטיוב וטיקטוק."};
+ frame('#/campaigns',`<div class='nland'><h1>כתבו מה אתם צריכים.<br>הקמפיין מוכן תוך חצי דקה.</h1><p class='sub'>מתוך מה שתכתבו נבנה טיוטת קמפיין מלאה שאפשר לערוך, ובה יוצרים יוכלו להגיש מועמדות.</p><div class='nbox'><textarea id='bf' placeholder='למשל: אנחנו משיקים קרם פנים טבעי ומחפשים יוצרות ביוטי שיצלמו סרטון ניסיון אמיתי'></textarea><div class='nrow'><input id='wu' placeholder='קישור לאתר או למוצר (לא חובה)' dir='ltr'><button class='btn b1' id='af'>בנו קמפיין ←</button></div></div><div class='nex'><span class='sub'>נסו דוגמה:</span>${Object.keys(EXS).map(k=>`<button class='ch' data-ex='${k}'>${k}</button>`).join('')}</div><p style='margin-top:22px'><button class='btn b3' id='sb'>או התחילו מאפס</button></p></div>`);
+ $$('[data-ex]').forEach(b=>b.onclick=()=>{$('#bf').value=EXS[b.dataset.ex]});
+ $('#sb').onclick=()=>{draw()};
+ $('#af').onclick=()=>{const b=$('#bf').value.trim();if(!b)return toast('כתבו כמה מילים על הקמפיין');const w=$('#wu').value.trim();d.about=b+(w?'\n'+w:'');d.t=b.slice(0,40);const k={אינסטגרם:'ig',טיקטוק:'tt',יוטיוב:'yt',UGC:'ugc'};const f=Object.keys(k).filter(x=>b.includes(x)).map(x=>k[x]);if(f.length)d.pl=f;d.ni=NICHES.filter(x=>b.includes(x));draw();toast('נוצרה טיוטת קמפיין, אפשר לערוך')};
 };
 R['/chat']=q=>{
  if(!Object.keys(LS.g('chat',{})).length&&!q.get('u')){frame('#/chat',`<div class='h2' style='font-size:30px;margin-bottom:16px'>הודעות</div><div class='empty'><b>עדיין אין הודעות</b><br>שיחות עם יוצרים ומותגים יופיעו כאן.</div>`);return}
@@ -207,10 +203,10 @@ R['/help']=()=>{const Q=[['איך עובד התשלום?','משלמים בעת �
 function route(){
  const h=location.hash.slice(1)||'/';const qi=h.indexOf('?');const path=qi<0?h:h.slice(0,qi);const q=new URLSearchParams(qi<0?'':h.slice(qi+1));
  const parts=path.split('/').filter(Boolean);
- if(!LS.g('user')&&['campaigns','orders','chat','saved','reports','studio','settings','new','me','cart','admin'].includes(parts[0])){if(parts[0]!=='me'){location.replace('#/login');return}}
+ if(!LS.g('user')&&['campaigns','orders','chat','saved','reports','studio','settings','new','me','cart','admin','open'].includes(parts[0])){if(parts[0]!=='me'){location.replace('#/login');return}}
  const UR=(LS.g('user')||{}).r;
  if(UR==='creator'&&['creators','creator','campaigns','saved','reports','new','cart','join'].includes(parts[0])&&!(parts[0]==='creator'&&parts[1]==='example')){location.replace('#/me');return}
- if(UR==='advertiser'&&['studio','join'].includes(parts[0])){location.replace('#/campaigns');return}
+ if(UR==='advertiser'&&['studio','join','open'].includes(parts[0])){location.replace('#/campaigns');return}
  if(!LS.g('user')&&parts[0]==='creator'&&parts[1]!=='example'){toast('הפרופילים גלויים לחברים רשומים בלבד');location.replace('#/creators');return}
  if(parts[0]==='creator'&&parts[1])return R['/creator'](q,parts[1]);
  (R['/'+(parts[0]||'')]||R['/'])(q);
