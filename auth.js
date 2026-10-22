@@ -241,7 +241,7 @@ R['/me']=async()=>{
  const {data:pr}=await sb.from('profiles').select('role,full_name,phone').eq('id',uid).maybeSingle();
  if(!pr){frame('#/me',`<div class='empty'>לא נמצא פרופיל לחשבון הזה.<br><br><button class='btn b3' id='lo2'>התנתקות</button></div>`);$('#lo2').onclick=logout;return}
  const isAdv=pr.role==='advertiser';
- const {data:det}=await sb.from(isAdv?'advertiser_profiles':'creator_profiles').select('*').eq('user_id',uid).maybeSingle();
+ const {data:det0}=await sb.from(isAdv?'advertiser_profiles':'creator_profiles').select('*').eq('user_id',uid).maybeSingle();const det=det0||{};
  let myPk=[],myWk=[];if(!isAdv){const {data:pk}=await sb.from('creator_packages').select('title,price,description,items').eq('user_id',uid).order('created_at');myPk=pk||[];const {data:wk}=await sb.from('creator_works').select('id,kind,media_type,path').eq('user_id',uid).order('created_at');myWk=wk||[];const {data:sv}=await sb.from('creator_services').select('service_key,price,included').eq('user_id',uid);const {data:ad}=await sb.from('creator_addons').select('addon_key,kind,value,note').eq('user_id',uid);det.services=sv||[];det.addons=ad||[]}
  if(curPath()!=='/me')return;
  const needP=!isAdv&&!(det.services||[]).length&&!myPk.length;
