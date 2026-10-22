@@ -47,7 +47,7 @@ const curPath=()=>(location.hash.slice(1)||'/').split('?')[0];
 
 function authShell(title,sub,inner,wide){
  const root=$('#root');root.className='noside';
- root.innerHTML=`<div class='auth ${wide?'wide':''}'><div class='bc'><a class='brand' href='#/' style='padding:0 0 4px'><i>מ</i><span>${BRAND}</span></a><div class='slogan'>מחברים בין משפיענים למפרסמים</div><div class='h2'>${title}</div><p class='sub'>${sub}</p>${inner}</div></div>`;
+ root.innerHTML=`<div class='auth ${wide?'wide':''}'><div class='bc'><a class='brand' href='#/' style='padding:0 0 4px'><i>${LOGO}</i><span>${BRAND}</span></a><div class='slogan'>מחברים בין משפיענים למפרסמים</div><div class='h2'>${title}</div><p class='sub'>${sub}</p>${inner}</div></div>`;
  window.scrollTo(0,0)}
 
 R['/signup']=q=>{
