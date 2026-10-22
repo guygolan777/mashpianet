@@ -47,7 +47,7 @@ function frame(route,html){
  $('#gs').onsubmit=e=>{e.preventDefault();location.hash='#/creators?q='+encodeURIComponent($('#gq').value)};
  window.scrollTo(0,0);
 }
-const exCard=()=>{const c=cr('noa-levi');return `<a class='cc exc' href='#/creator/example' style='background:${gr(c.id)}'><div class='ph'>${c.n[0]}</div><div class='bd'>פרופיל לדוגמה</div><div class='mt'><div><b>${c.n}</b><small>${CAT[c.ct]} · ${c.c}</small></div><div class='p'>${ils(c.pr)}</div></div></a>`};
+const exCard=()=>{const c=cr('noa-levi');return `<a class='cc exc' href='#/creator/example' style='background:${gr(c.id)}'><div class='ph'>${c.n[0]}</div><div class='exg'>דוגמה</div><div class='exsoc'><span>${SIN.ig}48.2K</span><span>${SIN.tt}21K</span><span>${SIN.yt}3.4K</span></div><div class='mt'><div><b>${c.n}</b><small>${CAT[c.ct]} · ${c.c}</small></div><div class='p'>${ils(c.pr)}</div></div></a>`};
 function card(c){return `<a class='cc' href='#/creator/${c.id}' style='background:${gr(c.id)}'><div class='ph'>${c.n[0]}</div><div class='bd'>${PL[c.p]} · ${c.f}</div><div class='mt'><div><b>${c.n}</b><small>${CAT[c.ct]} · ${c.c}</small></div><div class='p'>${ils(c.pr)}</div></div></a>`}
 function orders(){return LS.g('orders',[{id:8142,u:'tamar-ben',pk:'סרטון טיקטוק',pr:120,st:'rev',d:'12.10.2026'},{id:8139,u:'noa-levi',pk:'סטורי אחד באינסטגרם',pr:50,st:'work',d:'09.10.2026'},{id:8120,u:'ido-hadad',pk:'פוסט תמונה אחד בפיד',pr:70,st:'done',d:'01.10.2026'},{id:8155,u:'alon-peretz',pk:'סרטון מוצר UGC (דקה)',pr:300,st:'new',d:'15.10.2026'}])}
 const ST={new:['חדשה','s-new',15],work:['בעבודה','s-work',50],rev:['ממתינה לאישור','s-rev',80],done:['הושלמה','s-done',100]};
