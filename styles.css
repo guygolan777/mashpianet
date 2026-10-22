@@ -118,3 +118,4 @@ svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.9;stroke
 @media(max-width:700px){.pmos{grid-template-rows:repeat(2,120px);grid-template-columns:repeat(3,1fr)}.pmos .pt0{grid-column:1/3}.pmos .pt3,.pmos .pt4{display:none}.pmos .pt0{grid-row:1/3}.phead{margin:-40px 8px 0}.pavx{width:92px;height:92px}.pname{font-size:26px!important}.pstats{grid-template-columns:repeat(2,1fr)}}
 .pinfo{padding-top:62px!important}.pact{padding-top:62px}.phead{align-items:flex-start!important}@media(max-width:700px){.pinfo,.pact{padding-top:52px!important}}
 @media(max-width:700px){.pact{padding-top:0!important;width:100%}.pact .btn{flex:1}.pinfo{min-width:0}}
+.hero h1.h1s{font-size:clamp(28px,3.4vw,46px)!important;line-height:1.18;letter-spacing:-1px}.hero h1.h1s em{font-style:normal;color:var(--sky2)}
