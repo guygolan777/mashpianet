@@ -3,6 +3,7 @@ const imgTag=id=>`<img class='pimg' alt='' src='faces/${id==='example'?'noa-levi
 const fill=(p,id)=>{if(p&&!p.querySelector('.pimg'))p.innerHTML=imgTag(id)};
 const decorate=()=>{
  $$('a.cc').forEach(a=>fill($('.ph',a),a.getAttribute('href').split('/').pop()));
+ $$('.exhero .cc .ph').forEach(p=>fill(p,'example'));
  $$('a.it').forEach(a=>fill($('.th',a),a.getAttribute('href').split('/').pop()));
  $$('.th2').forEach(t=>fill($('.av',t),t.dataset.id));
  $$('.oc').forEach(o=>{const c=CR.find(x=>x.n===$('b',o).textContent);if(c)fill($('.th',o),c.id)});
