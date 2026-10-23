@@ -1,0 +1,13 @@
+const nfmt=n=>n==null?'—':n>=1e6?(n/1e6).toFixed(1)+'M':n>=1e3?(n/1e3).toFixed(1)+'K':String(n);
+const bars=(rows,tint)=>rows.map(([l,v])=>`<div class='ib'><span>${l}</span><div><i style='width:${v}%'></i></div><em>${v}%</em></div>`).join('');
+function insightsHtml(d,demo){
+ if(!d)return `<div class='empty'>היוצר עוד לא הוסיף נתוני ביצועים.</div>`;
+ const eng=d.avg_likes!=null&&d.followers?((d.avg_likes+(d.avg_comments||0))/d.followers*100).toFixed(2)+'%':'—';
+ const a=d.audience||{};const has=a.countries||a.ages||a.gender;
+ return `${demo?`<div class='sub' style='margin-bottom:10px'>נתוני הדגמה. אצל יוצרים אמיתיים הנתונים יגיעו מחיבור רשמי לאינסטגרם.</div>`:''}
+ <div class='vrow'>${d.verified?`<span class='stt s-done'>מאומת דרך Meta</span>`:`<span class='stt s-work'>הוזן על ידי היוצר, לא מאומת</span>`}</div>
+ <div class='kpis'><div class='kpi'><b>${nfmt(d.followers)}</b><small>עוקבים</small></div><div class='kpi'><b>${nfmt(d.posts)}</b><small>פוסטים</small></div><div class='kpi'><b>${eng}</b><small>אחוז מעורבות</small></div></div>
+ <div class='kpis'><div class='kpi'><b>${nfmt(d.avg_likes)}</b><small>לייקים בממוצע</small></div><div class='kpi'><b>${nfmt(d.avg_comments)}</b><small>תגובות בממוצע</small></div><div class='kpi'><b>${nfmt(d.avg_views)}</b><small>צפיות בממוצע</small></div></div>
+ ${has?`<div class='igrid'>${a.countries?`<div class='bc'><div class='h2'>מדינות הקהל</div>${bars(a.countries)}</div>`:''}${a.ages?`<div class='bc'><div class='h2'>גילאי הקהל</div>${bars(a.ages)}</div>`:''}${a.gender?`<div class='bc'><div class='h2'>מגדר הקהל</div>${bars(a.gender)}</div>`:''}</div>`:`<div class='sub' style='margin-top:12px'>נתוני קהל (מדינות, גילאים ומגדר) יוצגו אחרי חיבור רשמי של החשבון לאינסטגרם.</div>`}`}
+const DEMO_INS={followers:48200,posts:1200,avg_likes:1840,avg_comments:92,avg_views:21700,verified:false,audience:{countries:[['ישראל',86],['ארצות הברית',7],['רוסיה',3],['אחר',4]],ages:[['18-24',22],['25-34',44],['35-44',24],['45+',10]],gender:[['נשים',71],['גברים',29]]}};
+(function(){const st=document.createElement('style');st.textContent='.ib{display:grid;grid-template-columns:78px minmax(40px,1fr) 40px;gap:8px;align-items:center;margin:9px 0;font-size:14px}.ib div{height:10px;background:#e4f5ff;border-radius:99px;overflow:hidden}.ib i{display:block;height:100%;background:linear-gradient(90deg,var(--sky),var(--sky2));border-radius:99px}.ib em{font-style:normal;color:var(--mut);text-align:left}.igrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px;margin-top:14px}.vrow{margin-bottom:12px}@media(max-width:900px){.igrid{grid-template-columns:1fr}}';document.head.append(st)})();
