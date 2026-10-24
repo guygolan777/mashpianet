@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /faces/
+
+Sitemap: https://mashpianim.co.il/sitemap.xml
