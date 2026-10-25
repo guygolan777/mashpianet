@@ -244,7 +244,8 @@ const shk=n=>'₪'+Number(n).toLocaleString('he-IL');
 function meView(pr,det,pk,wk,email){
  const urls=wk.map(w=>({...w,url:sb.storage.from('creator-works').getPublicUrl(w.path).data.publicUrl}));
  const imgs=urls.filter(w=>w.media_type!=='video'),vids=urls.filter(w=>w.media_type==='video');
- const mosaic=urls.slice(0,5);
+ const posts=urls.filter(w=>w.kind==='post'),sr=urls.filter(w=>w.kind!=='post');
+ const hp=posts[0]||null;const rest=[...sr,...posts.slice(1)];const hero=[hp||(rest.length>3?rest.splice(3,1)[0]:null),rest[0]||null,rest[1]||null,rest[2]||null];
  const tile=(w,i)=>w.media_type==='video'?`<div class='pt pt${i} bf vd'><video src='${E(w.url)}#t=0.1' muted playsinline preload='auto'></video></div>`:`<div class='pt pt${i} bf' style='--u:url(&quot;${E(w.url)}&quot;)'><img src='${E(w.url)}' alt=''></div>`;
  const edit=(sec,label)=>`<a class='btn b3 sm' href='#/me?edit=${sec}'>${SI("<path d='M12 20h9'/><path d='M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z'/>")} ${label||'עריכה'}</a>`;
  const fol=(det.followers_ig||0)+(det.followers_tt||0)+(det.followers_yt||0);
@@ -263,7 +264,7 @@ function meView(pr,det,pk,wk,email){
  const draw=()=>{
   const needP=!sv.length&&!pk.length;
   frame('#/me',`${needP?`<div class='bc' style='margin-bottom:14px;background:linear-gradient(135deg,#dff3ff,#c8f3ea);border:0'><b style='font-size:18px'>השלב הבא: בנו את המחירון והחבילות שלכם</b><p class='sub' style='margin:6px 0 12px'>כך מותגים יראו הכול לפני שהם פונים.</p><a class='btn b1' href='#/me?edit=pricing'>מעבר למחירון</a></div>`:''}
-  ${urls.length?`<div class='pfilm'>${urls.slice(0,10).map(w=>w.media_type==='video'?`<video src='${E(w.url)}#t=0.1' muted playsinline controls preload='metadata'></video>`:`<img src='${E(w.url)}' alt=''>`).join('')}</div>`:`<div class='pmos0'><div><b>עוד אין עבודות בפרופיל</b><p>הוסיפו תמונות וסרטונים כדי שהפרופיל ייראה מרשים</p>${edit('works','העלאת עבודות')}</div></div>`}
+  ${urls.length?`<div class='pq'>${hero.map((w,i)=>w?`<div class='pq${i?'r':'s'}'>${w.media_type==='video'?`<video src='${E(w.url)}#t=0.1' muted playsinline controls preload='metadata'></video>`:`<img src='${E(w.url)}' alt=''>`}<span>${i?(WK[w.kind]||'סטורי / רילס'):'פוסט'}</span></div>`:`<a class='pq${i?'r':'s'} pqe' href='#/me?edit=works'><b>＋</b><small>${i?'הוסיפו סטורי או רילס':'הוסיפו פוסט'}</small></a>`).join('')}</div>`:`<div class='pmos0'><div><b>עוד אין עבודות בפרופיל</b><p>הוסיפו תמונות וסרטונים כדי שהפרופיל ייראה מרשים</p>${edit('works','העלאת עבודות')}</div></div>`}
   <div class='phead'><div class='pavw'><div class='pavx' style='${imgs[0]?`background-image:url(${E(imgs[0].url)})`:'background:linear-gradient(135deg,#38bdf8,#14b8a6)'}'>${imgs[0]?'':`<b style='color:#fff;font-size:44px;display:grid;place-items:center;height:100%'>${E(name[0]||'?')}</b>`}</div></div><div class='pinfo'><div class='h2 pname'>${E(name)}</div><div class='sub'>${E([(det.niches||[]).join(', '),det.city].filter(Boolean).join(' · '))}</div></div><div class='pact'><a class='btn b1' href='#/me?edit=prof'>${SI("<path d='M12 20h9'/><path d='M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z'/>")} עריכת פרופיל</a></div></div>
   <div class='pstats'><div><b>${fol?nfmt(fol):'—'}</b><small>עוקבים</small></div><div><b>${urls.length}</b><small>עבודות</small></div><div><b>${sv.length}</b><small>שירותים במחירון</small></div><div><b>${pk.length}</b><small>חבילות</small></div></div>
   <div class='socs'>${soc||`<span class='sub'>לא הוספתם קישורי רשתות</span>`}</div>
