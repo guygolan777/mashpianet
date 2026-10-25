@@ -40,7 +40,8 @@ async function loadProfile(session){
  if(error||!data){LS.s('user',{n:session.user.email,r:null,e:session.user.email});return null}
  if(data.status==='suspended'){await sb.auth.signOut();LS.s('user',null);toast('החשבון הושעה. לפרטים צרו קשר עם התמיכה');return null}
  const {data:ad}=await sb.from('admins').select('user_id').eq('user_id',session.user.id).maybeSingle();
- LS.s('user',{n:data.full_name||session.user.email,r:data.role,e:session.user.email,a:!!ad});
+ let pu='';if(data.role==='creator'){const {data:cp}=await sb.from('creator_profiles').select('avatar_path').eq('user_id',session.user.id).maybeSingle();if(cp&&cp.avatar_path)pu=sb.storage.from('creator-works').getPublicUrl(cp.avatar_path).data.publicUrl}
+ LS.s('user',{n:data.full_name||session.user.email,r:data.role,e:session.user.email,a:!!ad,p:pu});
  return data}
 const homeFor=r=>r==='creator'?'#/me':'#/campaigns';
 const curPath=()=>(location.hash.slice(1)||'/').split('?')[0];
@@ -241,7 +242,12 @@ R['/reset']=()=>{
 
 const svcTitle={};SVC_CATALOG.forEach(([g,it])=>it.forEach(([k,t])=>svcTitle[k]=t));
 const shk=n=>'₪'+Number(n).toLocaleString('he-IL');
-function meView(pr,det,pk,wk,email){
+
+const SOCN={ig:['אינסטגרם','instagram','followers_ig','https://instagram.com/username'],tt:['טיקטוק','tiktok','followers_tt','https://tiktok.com/@username'],yt:['יוטיוב','youtube','followers_yt','https://youtube.com/@channel']};
+function addSocial(k,uid){const [n,col,fcol,ph]=SOCN[k];
+ const m=modal(`<h3>הוספת ${n}</h3><p class='sub'>הדביקו קישור לפרופיל ואפשר להוסיף מספר עוקבים.</p><div class='fld'><label>קישור ל${n}</label><input id='qs_l' dir='ltr' placeholder='${ph}'></div><div class='fld'><label>עוקבים (לא חובה)</label><input id='qs_f' type='number' min='0' placeholder='4200'></div><div class='err' id='qs_e'></div><button class='btn b1 full' id='qs_s'>שמירה</button>`);
+ $('#qs_s').onclick=async()=>{const h=parseSocial('qs_l',k);if(h===null||!h){const er=$('#qs_e');er.textContent='הקישור לא תקין. הדביקו קישור מהפרופיל, למשל '+ph;er.classList.add('show');return}const raw=$('#qs_f').value.trim();const fn=raw===''?null:Number(raw);if(fn!==null&&(!Number.isInteger(fn)||fn<0))return toast('מספר עוקבים לא תקין');const row={[col]:h};if(fn!==null)row[fcol]=fn;const {error}=await sb.from('creator_profiles').update(row).eq('user_id',uid);if(error)return toast('השמירה נכשלה');m.remove();toast(n+' נוסף לפרופיל');R['/me']()}}
+function meView(pr,det,pk,wk,email,uid){
  const urls=wk.map(w=>({...w,url:sb.storage.from('creator-works').getPublicUrl(w.path).data.publicUrl}));
  const imgs=urls.filter(w=>w.media_type!=='video'),vids=urls.filter(w=>w.media_type==='video');
  const posts=urls.filter(w=>w.kind==='post'),sr=urls.filter(w=>w.kind!=='post');
@@ -250,6 +256,7 @@ function meView(pr,det,pk,wk,email){
  const edit=(sec,label)=>`<a class='btn b3 sm' href='#/me?edit=${sec}'>${SI("<path d='M12 20h9'/><path d='M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z'/>")} ${label||'עריכה'}</a>`;
  const fol=(det.followers_ig||0)+(det.followers_tt||0)+(det.followers_yt||0);
  const name=det.display_name||pr.full_name||email;
+ const avUrl=det.avatar_path?sb.storage.from('creator-works').getPublicUrl(det.avatar_path).data.publicUrl:'';
  const soc=chips({ig:det.instagram,tt:det.tiktok,yt:det.youtube});
  const tabs=['מחירון','חבילות','עבודות','נתוני קהל','אודות'];
  const sv=det.services||[],ad=det.addons||[];
@@ -265,12 +272,14 @@ function meView(pr,det,pk,wk,email){
   const needP=!sv.length&&!pk.length;
   frame('#/me',`${needP?`<div class='bc' style='margin-bottom:14px;background:linear-gradient(135deg,#dff3ff,#c8f3ea);border:0'><b style='font-size:18px'>השלב הבא: בנו את המחירון והחבילות שלכם</b><p class='sub' style='margin:6px 0 12px'>כך מותגים יראו הכול לפני שהם פונים.</p><a class='btn b1' href='#/me?edit=pricing'>מעבר למחירון</a></div>`:''}
   ${urls.length?`<div class='pq'>${hero.map((w,i)=>w?`<div class='pq${i?'r':'s'}'>${w.media_type==='video'?`<video src='${E(w.url)}#t=0.1' muted playsinline controls preload='metadata'></video>`:`<img src='${E(w.url)}' alt=''>`}<span>${i?(WK[w.kind]||'סטורי / רילס'):'פוסט'}</span></div>`:`<a class='pq${i?'r':'s'} pqe' href='#/me?edit=works'><b>＋</b><small>${i?'הוסיפו סטורי או רילס':'הוסיפו פוסט'}</small></a>`).join('')}</div>`:`<div class='pmos0'><div><b>עוד אין עבודות בפרופיל</b><p>הוסיפו תמונות וסרטונים כדי שהפרופיל ייראה מרשים</p>${edit('works','העלאת עבודות')}</div></div>`}
-  <div class='phead'><div class='pavw'><div class='pavx' style='${imgs[0]?`background-image:url(${E(imgs[0].url)})`:'background:linear-gradient(135deg,#38bdf8,#14b8a6)'}'>${imgs[0]?'':`<b style='color:#fff;font-size:44px;display:grid;place-items:center;height:100%'>${E(name[0]||'?')}</b>`}</div></div><div class='pinfo'><div class='h2 pname'>${E(name)}</div><div class='sub'>${E([(det.niches||[]).join(', '),det.city].filter(Boolean).join(' · '))}</div></div><div class='pact'><a class='btn b1' href='#/me?edit=prof'>${SI("<path d='M12 20h9'/><path d='M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z'/>")} עריכת פרופיל</a></div></div>
+  <div class='phead'><div class='pavw'><div class='pavx' style='${avUrl?`background-image:url(${E(avUrl)})`:'background:linear-gradient(135deg,#38bdf8,#14b8a6)'}'>${avUrl?'':`<b style='color:#fff;font-size:44px;display:grid;place-items:center;height:100%'>${E(name[0]||'?')}</b>`}</div><label class='avedit' title='החלפת תמונת פרופיל'>${SI("<path d='M4 8h3l2-3h6l2 3h3v11H4z'/><circle cx='12' cy='13' r='3.5'/>")}<input type='file' id='avf' accept='image/jpeg,image/png,image/webp' hidden></label></div><div class='pinfo'><div class='h2 pname'>${E(name)}</div><div class='sub'>${E([(det.niches||[]).join(', '),det.city].filter(Boolean).join(' · '))}</div></div><div class='pact'><a class='btn b1' href='#/me?edit=prof'>${SI("<path d='M12 20h9'/><path d='M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z'/>")} עריכת פרופיל</a></div></div>
   <div class='pstats'><div><b>${fol?nfmt(fol):'—'}</b><small>עוקבים</small></div><div><b>${urls.length}</b><small>עבודות</small></div><div><b>${sv.length}</b><small>שירותים במחירון</small></div><div><b>${pk.length}</b><small>חבילות</small></div></div>
-  <div class='socs'>${soc||`<span class='sub'>לא הוספתם קישורי רשתות</span>`}</div>
+  <div class='socs'>${soc}${[['ig','אינסטגרם',det.instagram],['tt','טיקטוק',det.tiktok],['yt','יוטיוב',det.youtube]].filter(x=>!x[2]).map(x=>`<button class='soc addsoc' data-k='${x[0]}'>＋ הוסיפו ${x[1]}</button>`).join('')}</div>
   <div class='tabs' id='tb'>${tabs.map((t,i)=>`<button data-i='${i}'>${t}</button>`).join('')}</div><div id='tc'>${tabs.map((t,i)=>`<section class='psec' id='m_${i}'><h3>${t}</h3>${body[t]()}</section>`).join('')}</div>
   <p class='sub' style='margin-top:20px'>כך מותגים רואים את הפרופיל שלכם. <button class='btn b3 sm' id='lo3'>${ico('out')} התנתקות</button></p>`);
-  $$('#tb button').forEach(b=>b.onclick=()=>{const t=$('#m_'+b.dataset.i);if(t)t.scrollIntoView({behavior:'smooth',block:'start'})});$('#lo3').onclick=logout};
+  $$('#tb button').forEach(b=>b.onclick=()=>{const t=$('#m_'+b.dataset.i);if(t)t.scrollIntoView({behavior:'smooth',block:'start'})});$('#lo3').onclick=logout;
+  $$('.addsoc').forEach(b=>b.onclick=()=>addSocial(b.dataset.k,uid));
+  $('#avf').onchange=async e=>{const f=e.target.files[0];if(!f)return;if(!/^image\/(jpeg|png|webp)$/.test(f.type)||f.size>5242880)return toast('בחרו תמונה JPG, PNG או WebP עד 5MB');toast('מעלה תמונה...');const ext=MIME_EXT[f.type];const path=uid+'/avatar-'+Date.now()+'.'+ext;const up=await sb.storage.from('creator-works').upload(path,f,{contentType:f.type,cacheControl:'3600'});if(up.error)return toast('ההעלאה נכשלה');const u2=await sb.from('creator_profiles').update({avatar_path:path}).eq('user_id',uid);if(u2.error)return toast('השמירה נכשלה');if(det.avatar_path)sb.storage.from('creator-works').remove([det.avatar_path]);const U=LS.g('user',{});U.p=sb.storage.from('creator-works').getPublicUrl(path).data.publicUrl;LS.s('user',U);toast('תמונת הפרופיל עודכנה');R['/me']()}};
  draw()}
 R['/me']=async(q)=>{
  q=q||new URLSearchParams();
@@ -285,7 +294,7 @@ R['/me']=async(q)=>{
  const {data:det0}=await sb.from(isAdv?'advertiser_profiles':'creator_profiles').select('*').eq('user_id',uid).maybeSingle();const det=det0||{};
  let myPk=[],myWk=[];if(!isAdv){const {data:pk}=await sb.from('creator_packages').select('title,price,description,items').eq('user_id',uid).order('created_at');myPk=pk||[];const {data:wk}=await sb.from('creator_works').select('id,kind,media_type,path').eq('user_id',uid).order('created_at');myWk=wk||[];const {data:sv}=await sb.from('creator_services').select('service_key,price,included').eq('user_id',uid);const {data:ad}=await sb.from('creator_addons').select('addon_key,kind,value,note').eq('user_id',uid);det.services=sv||[];det.addons=ad||[];const {data:ins}=await sb.from('creator_insights').select('*').eq('user_id',uid).maybeSingle();det.insights=ins||{}}
  if(curPath()!=='/me')return;
- if(!isAdv&&!q.get('edit'))return meView(pr,det,myPk,myWk,session.user.email);
+ if(!isAdv&&!q.get('edit'))return meView(pr,det,myPk,myWk,session.user.email,uid);
  const needP=!isAdv&&!(det.services||[]).length&&!myPk.length;
  const ES=q.get('edit');const ET={prof:'פרטי הפרופיל',pricing:'המחירון',packages:'החבילות',insights:'נתוני הביצועים',works:'העבודות'};const only=!isAdv&&ET[ES]?ES:'';
  frame('#/me',`${isAdv?'':`<a href='#/me' class='btn b3 sm' style='margin-bottom:12px'>← חזרה לתצוגת הפרופיל</a>`}${needP&&!only?`<div class='bc' style='max-width:780px;margin-bottom:14px;background:linear-gradient(135deg,#dff3ff,#c8f3ea);border:0'><b style='font-size:18px'>השלב הבא: בנו את המחירון והחבילות שלכם</b><p class='sub' style='margin:6px 0 12px'>הפרופיל נוצר. עכשיו קבעו מחיר לכל שירות ובנו חבילות, כדי שמותגים יראו הכול לפני שהם פונים.</p><a class='btn b1' href='#pricing' id='gop'>מעבר למחירון</a></div>`:''}<div class='h2' style='font-size:30px'>${only?'עריכת '+ET[only]:'הפרופיל שלי'}</div><div class='sub' style='margin-bottom:16px'><span class='rb'>${ROLE_HE[pr.role]}</span> · <span dir='ltr'>${E(session.user.email)}</span></div><div class='bc' style='max-width:780px'><form id='mf' novalidate data-only='${only}'><div class='g2 ${isAdv?'':'esec'}' data-s='prof'><div class='fld'><label>שם מלא${isAdv?' (איש קשר)':''}</label><input id='fn' value='${E(pr.full_name)}'></div>${inp('ph','טלפון','tel','',pr.phone||'')}</div>${isAdv?advDetails(det):crDetails(det,true)}<div class='err' id='er'></div><button class='btn b1'>${only?'שמירה':'שמירת שינויים'}</button> <button type='button' class='btn b3' id='lo2'>${ico('out')} התנתקות</button></form></div>`);
