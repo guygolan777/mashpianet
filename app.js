@@ -53,7 +53,7 @@ function frame(route,html){
  window.scrollTo(0,0);
 }
 const exCard=()=>{const c=cr('noa-levi');return `<a class='cc exc' href='#/creator/example' style='background:${gr(c.id)}'><div class='ph'>${c.n[0]}</div><div class='exg'>דוגמה</div><div class='exsoc'><span>${SIN.ig}48.2K</span><span>${SIN.tt}21K</span><span>${SIN.yt}3.4K</span></div><div class='mt'><div><b>${c.n}</b><small>${CAT[c.ct]} · ${c.c}</small></div><div class='p'>${ils(c.pr)}</div></div></a>`};
-function card(c){return `<a class='cc' href='#/creator/${c.id}' style='background:${gr(c.id)}'><div class='ph'>${c.n[0]}</div><div class='bd'>${PL[c.p]} · ${c.f}</div><div class='mt'><div><b>${c.n}</b><small>${CAT[c.ct]} · ${c.c}</small></div><div class='p'>${ils(c.pr)}</div></div></a>`}
+function card(c){return `<a class='cc' href='#/creator/${c.id}' style='background:${gr(c.id)}'><div class='ph'>${c.n[0]}</div><div class='bd'>${PL[c.p]} · ${c.f}</div>${c.real?'':`<span class='demob'>דוגמה</span>`}<div class='mt'><div><b>${c.n}</b><small>${CAT[c.ct]}${c.c?' · '+c.c:''}</small></div><div class='p'>${c.real&&!c.pr?'':(c.real?'מ־':'')+ils(c.pr)}</div></div></a>`}
 function orders(){return LS.g('orders',[])}
 const ST={new:['חדשה','s-new',15],work:['בעבודה','s-work',50],rev:['ממתינה לאישור','s-rev',80],done:['הושלמה','s-done',100]};
 function camps(){return LS.g('camps',[])}
