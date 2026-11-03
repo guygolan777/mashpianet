@@ -77,13 +77,13 @@ R['/']=()=>{
 };
 R['/creators']=q=>{
  if(!LS.g('user')){frame('#/creators',`<div class='h2' style='font-size:30px'>יוצרי תוכן ומשפיעני רשת</div><div class='sub'>מצאו את היוצרים והמשפיענים שמתאימים למותג שלכם</div><div class='exw'><div class='exs'><b>כך נראה פרופיל של יוצר</b><p>פרופיל לדוגמה עם מחירון, חבילות ועבודות. לחצו כדי לראות.</p><a class='btn b3' href='#/creator/example'>צפו בפרופיל לדוגמה</a></div>${exCard()}</div><div class='lock' style='margin-top:20px'><div class='lkt lkg'>${Array.from({length:8},()=>'<i></i>').join('')}</div><div class='lkm'><b>${SIN.lock} הפרופילים והמחירונים גלויים לחברים רשומים בלבד</b><p>הירשמו כמפרסמים כדי לחפש יוצרים, לראות מחירונים ולהזמין שיתופי פעולה.</p><div><a class='btn b1' href='#/signup?t=brand'>הרשמה כמפרסמים</a> <a class='btn b3' href='#/login'>התחברות</a></div></div></div>`);return}
- let st={p:q.get('p')||'',q:q.get('q')||'',c:q.get('c')||'',mx:'',so:'',v:'grid'};const fav=new Set(LS.g('fav',[]));
- frame('#/creators',`<div class='h2' style='font-size:30px'>יוצרי תוכן ומשפיעני רשת</div><div class='sub' id='cnt'></div><div class='pill' id='pl'></div><div class='pill'><input class='sel' id='kq' placeholder='חיפוש חופשי' value='${st.q}'><select class='sel' id='cc'><option value=''>כל התחומים</option>${Object.entries(CAT).map(([k,v])=>`<option value='${k}'>${v}</option>`).join('')}</select><select class='sel' id='mx'><option value=''>כל המחירים</option><option value='60'>עד ₪220</option><option value='100'>עד ₪360</option><option value='200'>עד ₪720</option></select><select class='sel' id='so'><option value=''>מיון: מומלצים</option><option value='a'>מחיר עולה</option><option value='d'>מחיר יורד</option></select><button class='ch' id='vw'>תצוגת רשימה</button></div><div id='out'></div>`);
- $('#cc').value=st.c;
+ let st={fv:false,p:q.get('p')||'',q:q.get('q')||'',c:q.get('c')||'',mx:'',so:'',v:'grid'};const fav=new Set(LS.g('fav',[]));
+ frame('#/creators',`<div class='h2' style='font-size:30px'>יוצרי תוכן ומשפיעני רשת</div><div class='sub' id='cnt'></div><div class='pill' id='pl'></div><label class='fvt'><input type='checkbox' id='fv'><span class='sw'></span> רק מועדפים</label><div class='pill'><input class='sel' id='kq' placeholder='חיפוש חופשי' value='${st.q}'><select class='sel' id='cc'><option value=''>כל התחומים</option>${Object.entries(CAT).map(([k,v])=>`<option value='${k}'>${v}</option>`).join('')}</select><select class='sel' id='mx'><option value=''>כל המחירים</option><option value='60'>עד ₪220</option><option value='100'>עד ₪360</option><option value='200'>עד ₪720</option></select><select class='sel' id='so'><option value=''>מיון: מומלצים</option><option value='a'>מחיר עולה</option><option value='d'>מחיר יורד</option></select><button class='ch' id='vw'>תצוגת רשימה</button></div><div id='out'></div>`);
+ $('#cc').value=st.c;$('#fv').onchange=e=>{st.fv=e.target.checked;draw()};
  const draw=()=>{
   $('#pl').innerHTML=`<button class='ch ${st.p===''?'on':''}' data-p=''>הכל</button>`+Object.entries(PL).map(([k,v])=>`<button class='ch ${st.p===k?'on':''}' data-p='${k}'>${v}</button>`).join('');
   $$('#pl .ch').forEach(b=>b.onclick=()=>{st.p=b.dataset.p;draw()});
-  let l=CR.filter(c=>(!st.p||c.p===st.p)&&(!st.c||c.ct===st.c)&&(!st.mx||c.pr<=+st.mx)&&(!st.q||(c.n+c.bio+CAT[c.ct]+c.c+c.pk).includes(st.q)));
+  let l=CR.filter(c=>(!st.p||c.p===st.p)&&(!st.c||c.ct===st.c)&&(!st.mx||c.pr<=+st.mx)&&(!st.fv||fav.has(c.id))&&(!st.q||(c.n+c.bio+CAT[c.ct]+c.c+c.pk).includes(st.q)));
   if(st.so==='a')l.sort((a,b)=>a.pr-b.pr);if(st.so==='d')l.sort((a,b)=>b.pr-a.pr);
   $('#cnt').textContent=`נמצאו ${l.length} יוצרי תוכן ומשפיעני רשת`;
   $('#vw').textContent=st.v==='grid'?'תצוגת רשימה':'תצוגת כרטיסים';
@@ -239,9 +239,9 @@ async function creatorHome(U){
 function route(){
  const h=location.hash.slice(1)||'/';const qi=h.indexOf('?');const path=qi<0?h:h.slice(0,qi);const q=new URLSearchParams(qi<0?'':h.slice(qi+1));
  const parts=path.split('/').filter(Boolean);
- if(!LS.g('user')&&['campaigns','orders','chat','saved','reports','studio','settings','new','me','cart','admin','open'].includes(parts[0])){if(parts[0]!=='me'){location.replace('#/login');return}}
+ if(!LS.g('user')&&['campaigns','campaign','orders','chat','saved','reports','studio','settings','new','me','cart','admin','open'].includes(parts[0])){if(parts[0]!=='me'){location.replace('#/login');return}}
  const UR=(LS.g('user')||{}).r;
- if(UR==='creator'&&['creators','creator','campaigns','saved','reports','new','cart','join'].includes(parts[0])&&!(parts[0]==='creator'&&parts[1]==='example')){location.replace('#/me');return}
+ if(UR==='creator'&&['creators','creator','campaigns','campaign','saved','reports','new','cart','join'].includes(parts[0])&&!(parts[0]==='creator'&&parts[1]==='example')){location.replace('#/me');return}
  if(UR==='advertiser'&&['studio','join','open'].includes(parts[0])){location.replace('#/campaigns');return}
  if(!LS.g('user')&&parts[0]==='creator'&&parts[1]!=='example'){toast('הפרופילים גלויים לחברים רשומים בלבד');location.replace('#/creators');return}
  if(parts[0]==='creator'&&parts[1])return R['/creator'](q,parts[1]);
