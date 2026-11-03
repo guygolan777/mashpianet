@@ -1,6 +1,6 @@
 const SLOGAN="<div class='slogan'>מחברים בין משפיענים למפרסמים</div>";
 const imgSrc=id=>{const c=(typeof CR!=='undefined')&&CR.find(x=>x.id===id);return c&&c.real?c.img:`faces/${id==='example'?'noa-levi':id}.jpg`};
-const imgTag=id=>{const s=imgSrc(id);return s?`<img class='pimg' alt='' src='${s}'>`:''};
+const imgTag=id=>{const s=imgSrc(id);if(!s)return '';const c=(typeof CR!=='undefined')&&CR.find(x=>x.id===id);return c&&c.vid?`<video class='pimg' src='${s}#t=0.1' muted playsinline preload='metadata'></video>`:`<img class='pimg' alt='' src='${s}'>`};
 const fill=(p,id)=>{if(p&&!p.querySelector('.pimg')){const t=imgTag(id);if(t)p.innerHTML=t}};
 const decorate=()=>{
  $$('a.cc').forEach(a=>fill($('.ph',a),a.getAttribute('href').split('/').pop()));
