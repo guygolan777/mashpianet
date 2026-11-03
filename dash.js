@@ -131,3 +131,20 @@ R['/new']=()=>{
   $('#sb').onclick=e=>{e.preventDefault();step=1;wizard()};
   $('#af').onclick=()=>{const b=$('#bf').value.trim();if(!b)return toast('כתבו כמה מילים על הקמפיין');const w=$('#wu').value.trim();d.about=b+(w?'\n'+w:'');{let t=b.split(/[.\n]/)[0].trim();if(t.length>45){t=t.slice(0,45);t=t.slice(0,t.lastIndexOf(' '))+'…'}d.t=t}const k={אינסטגרם:'ig',טיקטוק:'tt',יוטיוב:'yt',UGC:'ugc'};const f=Object.keys(k).filter(x=>b.includes(x)).map(x=>k[x]);if(f.length)d.pl=f;d.ni=NICHES.filter(x=>b.includes(x));step=1;wizard();toast('נוצרה טיוטה, אפשר לערוך')}};
  landing();wireLanding()};
+
+/* ===== mobile account menu: avatar opens profile / settings / admin / logout ===== */
+(function(){
+ const _f=frame;
+ frame=function(route,html){
+  _f(route,html);
+  const a=$('.top a.av');if(!a||a.dataset.mm)return;a.dataset.mm='1';
+  a.addEventListener('click',e=>{
+   if(!matchMedia('(max-width:980px)').matches)return;
+   e.preventDefault();e.stopPropagation();
+   const U=LS.g('user',null);if(!U)return;
+   const old=$('#acm');if(old){old.remove();return}
+   const it=(h,i,t)=>`<a class='acmi' href='${h}'>${ico(i)}<span>${t}</span></a>`;
+   document.body.insertAdjacentHTML('beforeend',`<div id='acm' class='acm'><div class='acms'><div class='acmh'><b>${E(U.n||'')}</b><small>${E(U.e||'')}</small></div>${it('#/me','users','הפרופיל שלי')}${it('#/settings','gear','הגדרות')}${U.a?it('#/admin','gear','מערכת ניהול'):''}${it('#/help','help','עזרה')}<button class='acmi' id='acmo'>${ico('out')}<span>התנתקות</span></button></div></div>`);
+   const m=$('#acm');m.onclick=ev=>{if(ev.target===m||ev.target.closest('a'))m.remove()};
+   $('#acmo').onclick=()=>{m.remove();logout()}},true)};
+})();
