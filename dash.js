@@ -30,7 +30,8 @@ const ago=d=>{const m=Math.max(1,Math.round((Date.now()-new Date(d))/6e4));retur
 const stepper=(apps,sel)=>{
  const st=[['פורסם','done'],['מועמדויות',apps>0?'done':'cur'],['בחירה',sel>0?'done':apps>0?'cur':'todo'],['סרטונים',sel>0?'cur':'todo']];
  return `<div class='stp'>${st.map((s,i)=>`<div class='sp ${s[1]}'><i>${s[1]==='done'?SI("<path d='M5 12.5l4.2 4.2L19 7'/>"):i+1}</i><span>${s[0]}</span></div>`).join('')}</div>`};
-const avatarOf=(x,n)=>x&&x.avatar_path?`<img src='${E(pubUrl(x.avatar_path))}' alt=''>`:`<b>${E(initial(n))}</b>`;
+const isVidPath=p=>/\.(mov|mp4|webm)$/i.test(p||'');
+const avatarOf=(x,n)=>{if(x&&x.avatar_path)return `<img src='${E(pubUrl(x.avatar_path))}' alt=''>`;if(x&&x.cover_path){const u=E(pubUrl(x.cover_path));return isVidPath(x.cover_path)?`<video src='${u}#t=0.1' muted playsinline preload='metadata'></video>`:`<img src='${u}' alt=''>`}return `<b>${E(initial(n))}</b>`};
 async function advDash(U){
  const nm=(U.n||'').split(' ')[0];
  const head=`<div class='dh'><div><div class='dd'>${new Date().toLocaleDateString('he-IL',{weekday:'long',day:'numeric',month:'long'})}</div><h1 class='dg'>${greet()}${nm?', '+esc(nm):''}</h1></div><a class='btn b3 dnew' href='#/new'>＋ קמפיין</a></div>`;
@@ -43,6 +44,7 @@ async function advDash(U){
  const cids=[...new Set(apps.map(a=>a.creator_id))];const people={};
  if(cids.length){const {data}=await sb.from('creator_profiles').select('user_id,display_name,city,avatar_path').in('user_id',cids);(data||[]).forEach(x=>people[x.user_id]=x)}
  const {data:dir}=await sb.rpc('creator_directory');const more=(dir||[]).filter(r=>!cids.includes(r.user_id)).slice(0,10);
+ (dir||[]).forEach(r=>{if(people[r.user_id])people[r.user_id].cover_path=r.cover_path});
  if(location.hash!=='#/'&&location.hash!=='')return;
  const pending=apps.filter(a=>a.status==='pending').length;
  const card1=c=>{const ca=apps.filter(a=>a.campaign_id===c.id),sel=ca.filter(a=>a.status==='selected').length,pe=ca.filter(a=>a.status==='pending').length;

@@ -244,7 +244,7 @@ async function creatorHome(U){
 function route(){
  const h=location.hash.slice(1)||'/';const qi=h.indexOf('?');const path=qi<0?h:h.slice(0,qi);const q=new URLSearchParams(qi<0?'':h.slice(qi+1));
  const parts=path.split('/').filter(Boolean);
- if(!LS.g('user')&&['campaigns','campaign','orders','chat','saved','reports','studio','settings','new','me','cart','admin','open'].includes(parts[0])){if(parts[0]!=='me'){location.replace('#/login');return}}
+ if(!LS.g('user')&&['campaigns','campaign','orders','chat','notifications','saved','reports','studio','settings','new','me','cart','admin','open'].includes(parts[0])){if(parts[0]!=='me'){location.replace('#/login');return}}
  const UR=(LS.g('user')||{}).r;
  if(UR==='creator'&&['creators','creator','campaigns','campaign','saved','reports','new','cart','join'].includes(parts[0])&&!(parts[0]==='creator'&&parts[1]==='example')){location.replace('#/me');return}
  if(UR==='advertiser'&&['studio','join','open'].includes(parts[0])){location.replace('#/campaigns');return}
