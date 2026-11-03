@@ -177,3 +177,11 @@ svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.9;stroke
 .lvi{background:#fff;border:1px solid var(--line);border-radius:26px;padding:18px;margin-bottom:14px}.lvi h3{margin:0 0 4px}.lvi p{color:var(--ink2);margin:0 0 12px}
 @media(max-width:900px){.toast{bottom:110px!important}}
 .acc .demob{left:auto;right:10px;top:12px}
+.acf{display:flex;align-items:center;gap:6px;color:var(--ink2);font-size:14px;margin:2px 0}.acf .si{width:15px;height:15px;color:var(--sky2)}
+/* bottom nav v2: flat white bar with raised round action button */
+@media(max-width:900px){
+ .bnav{right:0;left:0;bottom:0;border-radius:22px 22px 0 0;background:rgba(255,255,255,.97);backdrop-filter:blur(14px);border-top:1px solid var(--line);box-shadow:0 -8px 28px rgba(14,39,64,.08);padding:8px 8px calc(8px + env(safe-area-inset-bottom));justify-content:space-between}
+ .bni{position:relative;color:#8499ad;min-width:0;flex:1;padding:6px 2px}.bni.on{color:var(--sky2);background:none}.bni.on:before{content:'';position:absolute;top:-9px;left:50%;transform:translateX(-50%);width:28px;height:4px;border-radius:0 0 6px 6px;background:var(--sky2)}
+ .bnew{width:58px;height:58px;padding:0;margin-top:-30px;border-radius:50%;border:5px solid #fff;justify-content:center;flex:none;box-shadow:0 10px 24px rgba(11,124,196,.4)}.bnew span{display:none}.bnew .si{width:26px;height:26px;stroke-width:2.4}
+ .page{padding-bottom:100px!important}.toast{bottom:92px!important}.sbar,.nwbar{bottom:82px}
+}

@@ -12,7 +12,8 @@ async function loadDirectory(force){
  const real=(data||[]).map(r=>{
   const plat=r.instagram?'ig':r.tiktok?'tt':r.youtube?'yt':'ig';
   const f=plat==='ig'?r.followers_ig:plat==='tt'?r.followers_tt:r.followers_yt;
-  return {id:r.user_id,real:true,n:r.display_name,p:plat,f:f?fmtF(f):'—',c:r.city||'',pr:r.min_price?r.min_price/3.6:0,minShek:r.min_price||0,pk:'',ct:NICHE_KEY[(r.niches||[])[0]]||'lifestyle',r:'—',bio:r.bio||'',t:0,img:pub(r.avatar_path)||pub(r.cover_path),soc:{ig:r.instagram,tt:r.tiktok,yt:r.youtube}}});
+  const fol={ig:r.followers_ig||0,tt:r.followers_tt||0,yt:r.followers_yt||0};const plats=[];if(r.instagram||fol.ig)plats.push('ig');if(r.tiktok||fol.tt)plats.push('tt');if(r.youtube||fol.yt)plats.push('yt');if((r.niches||[]).includes('UGC'))plats.push('ugc');
+ return {fol,plats,cts:(r.niches||[]).map(n=>NICHE_KEY[n]).filter(Boolean),id:r.user_id,real:true,n:r.display_name,p:plat,f:f?fmtF(f):'—',c:r.city||'',pr:r.min_price?r.min_price/3.6:0,minShek:r.min_price||0,pk:'',ct:NICHE_KEY[(r.niches||[])[0]]||'lifestyle',r:'—',bio:r.bio||'',t:0,img:pub(r.avatar_path)||pub(r.cover_path),soc:{ig:r.instagram,tt:r.tiktok,yt:r.youtube}}});
  CR.unshift(...real)}
 const _creators=R['/creators'];
 R['/creators']=async q=>{if(LS.g('user'))await loadDirectory(true);_creators(q)};

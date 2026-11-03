@@ -17,9 +17,10 @@ function shellExtras(route){
  if(!$('.bnav'))root.insertAdjacentHTML('beforeend',`<nav class='bnav'>${items}</nav>`)}
 
 /* ===== directory card (photo, badge, invite button, name + price below) ===== */
+const folLine=c=>{const p=window.CURP||'';const f=folOf(c,p);const pl=p||primaryPl(c);return `${SIN[pl==='ugc'?'ig':pl]||''} ${f?fmtN(f)+' עוקבים':'—'}`};
 card=function(c){
  const price=c.real?(c.minShek?'החל מ־₪'+Number(c.minShek).toLocaleString('he-IL'):''):ils(c.pr);
- return `<div class='acw'><a class='cc acc' href='#/creator/${c.id}' style='background:${gr(c.id)}'><div class='ph'>${c.n[0]}</div>${c.real?'':`<span class='demob'>דוגמה</span>`}<span class='acb'>${SI("<rect x='3' y='3' width='18' height='18' rx='3'/><circle cx='9' cy='9' r='1.6'/><path d='M21 15l-5-5L5 21'/>")} עם תיק עבודות</span><span class='acg'>הזמנה</span></a><div class='acn'><b>${esc(c.n)}</b><small>${price}</small></div></div>`};
+ return `<div class='acw'><a class='cc acc' href='#/creator/${c.id}' style='background:${gr(c.id)}'><div class='ph'>${c.n[0]}</div>${c.real?'':`<span class='demob'>דוגמה</span>`}<span class='acb'>${SI("<rect x='3' y='3' width='18' height='18' rx='3'/><circle cx='9' cy='9' r='1.6'/><path d='M21 15l-5-5L5 21'/>")} עם תיק עבודות</span><span class='acg'>הזמנה</span></a><div class='acn'><b>${esc(c.n)}</b><span class='acf'>${folLine(c)}</span><small>${price}</small></div></div>`};
 
 /* ===== advertiser dashboard ===== */
 const _homeBase=R['/'];
