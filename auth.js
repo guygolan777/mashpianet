@@ -209,15 +209,30 @@ function brandForm(){
   r.d.phone=val('ph');
   await doSignup('advertiser',val('em').toLowerCase(),$('#pw').value,fn,r.d,$('#sb'))}}
 
-const crSignup=v=>{v=v||{};return `<div class='sech'>הפרופיל שלכם</div>${inp('dn','שם שיוצג בפרופיל (אם ריק, נשתמש בשם המלא)','text','איך מכירים אתכם ברשת')}<div class='fld'><label>תחומי תוכן * (אפשר לבחור כמה)</label>${chipSet('niches',NICHES_ALL,[])}</div><div class='g2'>${inp('ig','קישור לאינסטגרם (לא חובה)','text','https://instagram.com/username',socUrl('ig',v.instagram),'dir=ltr')}${inp('igf','עוקבים באינסטגרם (לא חובה)','number','4200','','min=0')}</div><details class='opt'><summary>עוד פרטים (לא חובה)</summary><div class='g2'>${inp('city','עיר','text','תל אביב')}${inp('tt','קישור לטיקטוק','text','https://tiktok.com/@username','','dir=ltr')}${inp('ttf','עוקבים בטיקטוק','number','15000','','min=0')}${inp('yt','קישור ליוטיוב','text','https://youtube.com/@channel','','dir=ltr')}${inp('ytf','מנויים ביוטיוב','number','800','','min=0')}</div>${area('bio','קצת עליכם','תארו את הסגנון שלכם ואת סוג התוכן שאתם יוצרים','')}</details><p class='hint'>את התמונה, העבודות והמחירון משלימים אחרי ההרשמה, בכמה לחיצות.</p>`};
+const AV_KEY='pendingAvatar';
+const shrinkImg=f=>new Promise((ok,no)=>{const im=new Image(),u=URL.createObjectURL(f);im.onload=()=>{const m=640,k=Math.min(1,m/Math.max(im.width,im.height));const c=document.createElement('canvas');c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);c.getContext('2d').drawImage(im,0,0,c.width,c.height);URL.revokeObjectURL(u);ok(c.toDataURL('image/jpeg',.85))};im.onerror=()=>{URL.revokeObjectURL(u);no()};im.src=u});
+async function flushPendingAvatar(uid){
+ let d=null;try{d=localStorage.getItem(AV_KEY)}catch(e){}
+ if(!d||!sb||!uid)return;
+ try{const blob=await (await fetch(d)).blob();const path=uid+'/avatar-'+Date.now()+'.jpg';
+  const up=await sb.storage.from('creator-works').upload(path,blob,{contentType:'image/jpeg',cacheControl:'3600'});if(up.error)return;
+  const u2=await sb.from('creator_profiles').update({avatar_path:path}).eq('user_id',uid);if(u2.error)return;
+  const U=LS.g('user',null);if(U){U.p=sb.storage.from('creator-works').getPublicUrl(path).data.publicUrl;LS.s('user',U)}
+  localStorage.removeItem(AV_KEY)}catch(e){}}
+const crSignup=v=>{v=v||{};return `<div class='sech'>הפרופיל שלכם</div><label class='avpick'><span class='avpv' id='avpv'>${SI("<path d='M4 8h3l2-3h6l2 3h3v11H4z'/><circle cx='12' cy='13' r='3.5'/>")}</span><span><b>תמונת פרופיל *</b><small>תמונה שלכם (פנים), נפרדת מהעבודות. JPG, PNG או WebP</small></span><input type='file' id='avs' accept='image/jpeg,image/png,image/webp' hidden></label>${inp('dn','שם שיוצג בפרופיל (אם ריק, נשתמש בשם המלא)','text','איך מכירים אתכם ברשת')}<div class='fld'><label>תחומי תוכן * (אפשר לבחור כמה)</label>${chipSet('niches',NICHES_ALL,[])}</div><div class='g2'>${inp('ig','קישור לאינסטגרם (לא חובה)','text','https://instagram.com/username',socUrl('ig',v.instagram),'dir=ltr')}${inp('igf','עוקבים באינסטגרם (לא חובה)','number','4200','','min=0')}</div><details class='opt'><summary>עוד פרטים (לא חובה)</summary><div class='g2'>${inp('city','עיר','text','תל אביב')}${inp('tt','קישור לטיקטוק','text','https://tiktok.com/@username','','dir=ltr')}${inp('ttf','עוקבים בטיקטוק','number','15000','','min=0')}${inp('yt','קישור ליוטיוב','text','https://youtube.com/@channel','','dir=ltr')}${inp('ytf','מנויים ביוטיוב','number','800','','min=0')}</div>${area('bio','קצת עליכם','תארו את הסגנון שלכם ואת סוג התוכן שאתם יוצרים','')}</details><p class='hint'>את התמונה, העבודות והמחירון משלימים אחרי ההרשמה, בכמה לחיצות.</p>`};
 function creatorForm(h){
  authShell('הרשמה ליוצרי תוכן ומשפיעני רשת',`<span class='steps2'><b class='on'>1</b> פרופיל <i></i><b>2</b> מחירון וחבילות</span>`,
  `<form id='sf' novalidate><div class='fld'><label>שם מלא *</label><input id='fn' autocomplete='name' placeholder='שם פרטי ושם משפחה'></div>${accountFields()}${crSignup({instagram:handleOf(h)})}<label class='chk'><input type='checkbox' id='tos'><span>קראתי ואני מסכים לתנאי השימוש ולמדיניות הפרטיות, ואני מאשר שאני בן או בת 18 ומעלה</span></label><div class='err' id='er'></div><button class='btn b1 full' id='sb'>יצירת פרופיל והמשך לבניית מחירון</button></form><p class='sub' style='margin-top:16px;text-align:center'>כבר רשומים? <a href='#/login' style='color:var(--sky2);font-weight:600'>התחברות</a> · <a href='#/signup'>חזרה לבחירת מסלול</a></p>`,1);
  bindChips();draftBind('creator');
+ try{const d=localStorage.getItem(AV_KEY);if(d)$('#avpv').innerHTML=`<img src='${d}' alt=''>`}catch(e){}
+ $('#avs').onchange=async e=>{const f=e.target.files[0];if(!f)return;if(!/^image\/(jpeg|png|webp)$/.test(f.type)||f.size>10485760)return showErr('בחרו תמונה JPG, PNG או WebP עד 10MB');
+  try{const d=await shrinkImg(f);localStorage.setItem(AV_KEY,d);$('#avpv').innerHTML=`<img src='${d}' alt=''>`}catch(x){showErr('לא הצלחנו לקרוא את התמונה. נסו תמונה אחרת')}};
  $('#sf').onsubmit=async e=>{e.preventDefault();
   const fn=val('fn');if(!fn)return showErr('נא למלא שם מלא');
   const ac=checkAccount();if(ac)return showErr(ac);
   if(!val('dn'))$('#dn').value=fn;
+  let hasAv=false;try{hasAv=!!localStorage.getItem(AV_KEY)}catch(x){}
+  if(!hasAv)return showErr('נא להוסיף תמונת פרופיל');
   const r=readCr();if(r.error)return showErr(r.error);
   if(!$('#tos').checked)return showErr('יש לאשר את תנאי השימוש ואת גיל 18 ומעלה');
   r.d.phone=val('ph');r.d.packages=r.packages;r.d.services=r.services;r.d.addons=r.addons;
@@ -232,7 +247,7 @@ async function doSignup(role,email,pw,full,details,btn){
  if(error)return showErr(heError(error));
  draftClear(role);
  if(data&&data.user&&Array.isArray(data.user.identities)&&data.user.identities.length===0)return showErr('כתובת האימייל כבר רשומה. אפשר להתחבר');
- if(data&&data.session){await loadProfile(data.session);if(role==='creator'&&WORKS.some(w=>w.file)){toast('מעלה את העבודות שלכם...');const f=await syncWorks(data.session.user.id);if(f)toast('חלק מהקבצים לא הועלו. אפשר להעלות שוב ב"הפרופיל שלי"')}toast('ההרשמה הושלמה, ברוכים הבאים');location.hash=homeFor(role);return}
+ if(data&&data.session){await loadProfile(data.session);if(role==='creator')await flushPendingAvatar(data.session.user.id);if(role==='creator'&&WORKS.some(w=>w.file)){toast('מעלה את העבודות שלכם...');const f=await syncWorks(data.session.user.id);if(f)toast('חלק מהקבצים לא הועלו. אפשר להעלות שוב ב"הפרופיל שלי"')}toast('ההרשמה הושלמה, ברוכים הבאים');location.hash=homeFor(role);return}
  authShell('בדקו את תיבת הדואר','',`<div style='text-align:center;padding:10px 0'><div class='bigi'>${SI("<rect x='3' y='5' width='18' height='14' rx='2'/><path d='M3 7l9 6 9-6'/>")}</div><p style='margin:12px 0'>שלחנו קישור אישור אל <b dir='ltr'>${E(email)}</b>.<br>לחצו עליו כדי להשלים את ההרשמה ולהתחבר. אחרי ההתחברות תעברו לשלב 2: בניית המחירון והחבילות.</p>${WORKS.some(w=>w.file)?`<p class='sub'>הקבצים שבחרתם לא הועלו עדיין. אחרי ההתחברות אפשר להעלות אותם בעמוד "הפרופיל שלי".</p>`:''}<p class='sub'>לא הגיע? בדקו בספאם, או נסו שוב בעוד כמה דקות.</p><a class='btn b1' style='margin-top:14px' href='#/login'>למסך ההתחברות</a></div>`)}
 
 R['/login']=q=>{
@@ -247,7 +262,7 @@ R['/login']=q=>{
   let res;try{res=await sb.auth.signInWithPassword({email:em,password:pw})}catch(x){res={error:x}}
   b.disabled=false;
   if(res.error)return showErr(heError(res.error));
-  const p=await loadProfile(res.data.session);toast('התחברתם בהצלחה');location.hash=homeFor(p&&p.role)};
+  const p=await loadProfile(res.data.session);if(p&&p.role==='creator')await flushPendingAvatar(res.data.session.user.id);toast('התחברתם בהצלחה');location.hash=homeFor(p&&p.role)};
  $('#fg').onclick=async e=>{e.preventDefault();
   const em=val('em').toLowerCase();if(!okEmail(em))return showErr('הקלידו את האימייל שלכם בשדה למעלה ולחצו שוב');
   if(!sb)return showErr('השירות לא נטען');
@@ -350,7 +365,7 @@ if(sb){
  let lastSig=sigOf();
  sb.auth.onAuthStateChange((ev,session)=>{setTimeout(async()=>{
   const was=!!LS.g('user',null);
-  await loadProfile(session);
+  const lp=await loadProfile(session);if(session&&lp&&lp.role==='creator')flushPendingAvatar(session.user.id);
   if(ev==='PASSWORD_RECOVERY'){location.hash='#/reset';return}
   const p=curPath();
   if(session&&(ev==='SIGNED_IN')&&(p==='/'||p==='/login'||p==='/signup')&&!was){const u=LS.g('user',{});lastSig=sigOf();location.hash=homeFor(u.r);return}
