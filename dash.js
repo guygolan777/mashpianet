@@ -160,3 +160,24 @@ document.addEventListener('change',async e=>{
  const up=await sb.storage.from('creator-works').upload(path,f,{contentType:f.type,cacheControl:'3600'});if(up.error)return toast('ההעלאה נכשלה');
  const u2=await sb.from('creator_profiles').update({avatar_path:path}).eq('user_id',uid);if(u2.error)return toast('השמירה נכשלה');
  const U=LS.g('user',{});U.p=pubUrl(path);LS.s('user',U);toast('תמונת הפרופיל עודכנה');route()});
+
+
+/* ===== real account settings (name, phone, password) ===== */
+R['/settings']=async()=>{
+ if(!sb){location.hash='#/login';return}
+ const {data:{session}}=await sb.auth.getSession();if(!session){location.hash='#/login';return}
+ frame('#/settings',`<div class='h2' style='font-size:30px;margin-bottom:16px'>הגדרות</div><div class='sub'>טוען...</div>`);
+ const {data:pr}=await sb.from('profiles').select('full_name,phone').eq('id',session.user.id).maybeSingle();
+ if(curPath()!=='/settings')return;
+ const U=LS.g('user',{})||{};
+ frame('#/settings',`<div class='h2' style='font-size:30px;margin-bottom:16px'>הגדרות</div><div class='bc' style='max-width:560px'><form id='stf' novalidate><div class='fld'><label>שם מלא</label><input id='sn' autocomplete='name' value='${E((pr&&pr.full_name)||U.n||'')}'></div><div class='fld'><label>טלפון</label><input id='sp' type='tel' autocomplete='tel' value='${E((pr&&pr.phone)||'')}'></div><div class='fld'><label>אימייל (להתחברות)</label><input value='${E(session.user.email)}' dir='ltr' disabled></div><div class='fld'><label>סיסמה חדשה (השאירו ריק כדי לא לשנות)</label><input id='spw' type='password' autocomplete='new-password' placeholder='לפחות 8 תווים'></div><div class='err' id='er'></div><button class='btn b1' id='ss'>שמירה</button> <button type='button' class='btn b3' id='lo'>${ico('out')} התנתקות</button></form></div>`);
+ $('#lo').onclick=logout;
+ $('#stf').onsubmit=async e=>{e.preventDefault();
+  const n=$('#sn').value.trim();if(!n)return showErr('נא למלא שם');
+  const ph=$('#sp').value.replace(/[\s\-()]/g,'');if(ph&&!/^\+?\d{9,14}$/.test(ph))return showErr('מספר הטלפון לא תקין');
+  const pw=$('#spw').value;if(pw&&pw.length<8)return showErr('הסיסמה חייבת להכיל לפחות 8 תווים');
+  const b=$('#ss');b.disabled=true;
+  const r=await sb.from('profiles').update({full_name:n,phone:ph||null}).eq('id',session.user.id);
+  if(r.error){b.disabled=false;return showErr(heError(r.error))}
+  if(pw){const u=await sb.auth.updateUser({password:pw});if(u.error){b.disabled=false;return showErr(heError(u.error))}}
+  const u2=LS.g('user',{})||{};u2.n=n;LS.s('user',u2);b.disabled=false;$('#spw').value='';toast(pw?'הפרטים והסיסמה עודכנו':'הפרטים נשמרו')}};
