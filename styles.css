@@ -213,3 +213,4 @@ details.svg>summary.svt{cursor:pointer;list-style:none;display:flex;justify-cont
 .chk.sp{margin:-4px 0 12px;font-size:14px}
 .svr .svd{display:none}.svr.on .svd{display:block}
 .chk.sp{display:flex;align-items:center;gap:8px}.chk.sp input{width:auto;flex:none}
+.pcn{min-width:0}.pcn b,.pcn small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}.pcn b{text-align:start}.prail{scrollbar-width:none}.prail::-webkit-scrollbar{display:none}
