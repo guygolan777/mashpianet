@@ -31,7 +31,7 @@ const stepper=(apps,sel)=>{
  const st=[['פורסם','done'],['מועמדויות',apps>0?'done':'cur'],['בחירה',sel>0?'done':apps>0?'cur':'todo'],['סרטונים',sel>0?'cur':'todo']];
  return `<div class='stp'>${st.map((s,i)=>`<div class='sp ${s[1]}'><i>${s[1]==='done'?SI("<path d='M5 12.5l4.2 4.2L19 7'/>"):i+1}</i><span>${s[0]}</span></div>`).join('')}</div>`};
 const isVidPath=p=>/\.(mov|mp4|webm)$/i.test(p||'');
-const avatarOf=(x,n)=>{if(x&&x.avatar_path)return `<img src='${E(pubUrl(x.avatar_path))}' alt=''>`;if(x&&x.cover_path){const u=E(pubUrl(x.cover_path));return isVidPath(x.cover_path)?`<video src='${u}#t=0.1' muted playsinline preload='metadata'></video>`:`<img src='${u}' alt=''>`}return `<b>${E(initial(n))}</b>`};
+const avatarOf=(x,n)=>x&&x.avatar_path?`<img src='${E(pubUrl(x.avatar_path))}' alt=''>`:`<b>${E(initial(n))}</b>`;
 async function advDash(U){
  const nm=(U.n||'').split(' ')[0];
  const head=`<div class='dh'><div><div class='dd'>${new Date().toLocaleDateString('he-IL',{weekday:'long',day:'numeric',month:'long'})}</div><h1 class='dg'>${greet()}${nm?', '+esc(nm):''}</h1></div><a class='btn b3 dnew' href='#/new'>＋ קמפיין</a></div>`;
@@ -148,3 +148,15 @@ R['/new']=()=>{
    const m=$('#acm');m.onclick=ev=>{if(ev.target===m||ev.target.closest('a'))m.remove()};
    $('#acmo').onclick=()=>{m.remove();logout()}},true)};
 })();
+
+/* upload profile photo straight from the creator home banner */
+document.addEventListener('change',async e=>{
+ if(!e.target||e.target.id!=='hav')return;
+ const f=e.target.files[0];if(!f)return;
+ if(!/^image\/(jpeg|png|webp)$/.test(f.type)||f.size>5242880)return toast('בחרו תמונה JPG, PNG או WebP עד 5MB');
+ toast('מעלה תמונה...');
+ const {data:{session}}=await sb.auth.getSession();if(!session)return;const uid=session.user.id;
+ const path=uid+'/avatar-'+Date.now()+'.'+MIME_EXT[f.type];
+ const up=await sb.storage.from('creator-works').upload(path,f,{contentType:f.type,cacheControl:'3600'});if(up.error)return toast('ההעלאה נכשלה');
+ const u2=await sb.from('creator_profiles').update({avatar_path:path}).eq('user_id',uid);if(u2.error)return toast('השמירה נכשלה');
+ const U=LS.g('user',{});U.p=pubUrl(path);LS.s('user',U);toast('תמונת הפרופיל עודכנה');route()});
