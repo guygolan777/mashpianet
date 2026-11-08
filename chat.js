@@ -10,9 +10,7 @@ async function startConv(otherId,campaignId){
  if(id)location.hash='#/chat?c='+id;
  return id}
 async function ensureConv(adv,cr,campaignId){
- let q=sb.from('conversations').select('id').eq('advertiser_id',adv).eq('creator_id',cr);
- q=campaignId?q.eq('campaign_id',campaignId):q.is('campaign_id',null);
- const {data:ex}=await q.maybeSingle();if(ex)return ex.id;
+ const {data:ex}=await sb.from('conversations').select('id').eq('advertiser_id',adv).eq('creator_id',cr).order('created_at').limit(1).maybeSingle();if(ex)return ex.id;
  const {data,error}=await sb.from('conversations').insert({advertiser_id:adv,creator_id:cr,campaign_id:campaignId}).select('id').maybeSingle();
  if(error||!data){toast('לא הצלחנו לפתוח שיחה');return null}
  return data.id}
@@ -25,8 +23,7 @@ async function sendMsg(convId,body){
 async function applyConv(campaignId,text){
  try{const me=await myId();if(!me)return;
   const {data:c}=await sb.from('campaigns').select('advertiser_id').eq('id',campaignId).maybeSingle();if(!c)return;
-  let q=sb.from('conversations').select('id').eq('advertiser_id',c.advertiser_id).eq('creator_id',me).eq('campaign_id',campaignId);
-  let {data:ex}=await q.maybeSingle();let id=ex&&ex.id;
+  let {data:ex}=await sb.from('conversations').select('id').eq('advertiser_id',c.advertiser_id).eq('creator_id',me).order('created_at').limit(1).maybeSingle();let id=ex&&ex.id;
   if(!id){const {data}=await sb.from('conversations').insert({advertiser_id:c.advertiser_id,creator_id:me,campaign_id:campaignId}).select('id').maybeSingle();id=data&&data.id}
   if(id&&text)await sendMsg(id,text)}catch(e){}}
 
@@ -106,6 +103,9 @@ async function chatThread(cid){
  const cv=(list||[]).find(c=>c.id===cid);
  if(!cv){frame('#/chat',`<div class='empty'>השיחה לא נמצאה.<br><br><a class='btn b1' href='#/chat'>להודעות</a></div>`);return}
  SIGN={};VP_CUR=null;
+ const advId=cv.my_role==='advertiser'?me:cv.other_id,crId=cv.my_role==='advertiser'?cv.other_id:me;
+ let cids=[cid];
+ {const {data:all}=await sb.from('conversations').select('id').eq('advertiser_id',advId).eq('creator_id',crId);if(all&&all.length)cids=[...new Set([cid,...all.map(x=>x.id)])]}
  const profLink=cv.my_role==='advertiser'?`#/creator/${cv.other_id}`:null;
  let msgs=[];
  const body=m=>{
@@ -133,14 +133,14 @@ async function chatThread(cid){
     if(el&&m.media_path&&SIGN[m.media_path]&&/\(נטען/.test(el.textContent)){el.outerHTML=bubble(m)}}});
   if(stick)box.scrollTop=box.scrollHeight};
  const load=async(first)=>{
-  const {data}=await sb.from('messages').select(MSG_COLS).eq('conversation_id',cid).order('created_at');
+  const {data}=await sb.from('messages').select(MSG_COLS).in('conversation_id',cids).order('created_at');
   if(!data)return;
   const changed=data.length!==msgs.length||data.some((m,i)=>msgs[i]&&(msgs[i].read!==m.read));
   if(!changed&&!first)return;
   await signMedia(data);
   const atEnd=box.scrollHeight-box.scrollTop-box.clientHeight<80;
   msgs=data;render(first||atEnd);
-  if(data.some(m=>m.sender_id!==me&&!m.read)){await sb.from('messages').update({read:true}).eq('conversation_id',cid).neq('sender_id',me).eq('read',false);refreshChatBadge(true)}};
+  if(data.some(m=>m.sender_id!==me&&!m.read)){await sb.from('messages').update({read:true}).in('conversation_id',cids).neq('sender_id',me).eq('read',false);refreshChatBadge(true)}};
  await load(true);
  if(!$('#ci')||!$('#cm'))return;
  const timer=setInterval(()=>{if(!$('#cm')||location.hash.indexOf(cid)<0){clearInterval(timer);stopRec(false);return}load(false)},4000);
