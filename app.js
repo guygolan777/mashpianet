@@ -245,11 +245,11 @@ async function creatorHome(U){
 function route(){
  const h=location.hash.slice(1)||'/';const qi=h.indexOf('?');const path=qi<0?h:h.slice(0,qi);const q=new URLSearchParams(qi<0?'':h.slice(qi+1));
  const parts=path.split('/').filter(Boolean);
- if(!LS.g('user')&&['campaigns','campaign','orders','chat','notifications','saved','reports','studio','settings','new','me','cart','admin','open','agency'].includes(parts[0])){if(parts[0]!=='me'){location.replace('#/login');return}}
+ if(!LS.g('user')&&['campaigns','campaign','orders','chat','notifications','saved','reports','studio','settings','new','me','cart','admin','open','agency','managed'].includes(parts[0])){if(parts[0]!=='me'){location.replace('#/login');return}}
  const UR=(LS.g('user')||{}).r;
  if(UR==='agent'&&['campaigns','campaign','orders','saved','reports','studio','new','cart','join','open','me'].includes(parts[0])){location.replace('#/');return}
- if(UR==='creator'&&['creators','creator','campaigns','campaign','saved','reports','new','cart','join','agency'].includes(parts[0])&&!(parts[0]==='creator'&&parts[1]==='example')){location.replace('#/me');return}
- if(UR==='advertiser'&&['studio','join','open','agency'].includes(parts[0])){location.replace('#/campaigns');return}
+ if(UR==='creator'&&['creators','creator','campaigns','campaign','saved','reports','new','cart','join','agency','managed'].includes(parts[0])&&!(parts[0]==='creator'&&parts[1]==='example')){location.replace('#/me');return}
+ if(UR==='advertiser'&&['studio','join','open','agency','managed'].includes(parts[0])){location.replace('#/campaigns');return}
  if(!LS.g('user')&&parts[0]==='creator'&&parts[1]!=='example'){toast('הפרופילים גלויים לחברים רשומים בלבד');location.replace('#/creators');return}
  if(parts[0]==='creator'&&parts[1])return R['/creator'](q,parts[1]);
  (R['/'+(parts[0]||'')]||R['/'])(q);
