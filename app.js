@@ -37,6 +37,7 @@ const NAV=[['גילוי',[['#/','home','בית'],['#/creators','users','איתו
 function menuFor(u){
  const H=['#/','home','בית'],HELP=['#/help','help','עזרה'],FIND=['#/creators','users','איתור משפיענים'];
  if(!u)return [['גילוי',[H,FIND,['#/join','spark','ליוצרים'],HELP]]];
+ if(u.r==='agent')return [['הסוכנות שלי',[H,['#/creators','users','איתור יוצרים'],['#/chat','chat','הודעות']]],['חשבון',[['#/settings','gear','הגדרות'],HELP]]];
  if(u.r==='creator')return [['היוצר שלי',[H,['#/me','users','הפרופיל שלי'],['#/studio','lay','סטודיו יוצר'],['#/open','mega','קמפיינים פתוחים'],['#/orders','bag','הזמנות'],['#/chat','chat','הודעות']]],['חשבון',[['#/settings','gear','הגדרות'],HELP]]];
  return [['גילוי',[H,FIND,HELP]],['המותג שלי',[['#/campaigns','mega','קמפיינים'],['#/orders','bag','הזמנות'],['#/chat','chat','הודעות'],['#/saved','heart','שמורים'],['#/reports','chart','דוחות']]],['חשבון',[['#/me','users','הפרופיל שלי'],['#/settings','gear','הגדרות']]]]}
 function cartN(){return LS.g('cart',[]).length}
@@ -69,7 +70,7 @@ R['/']=()=>{
  <div class='bc s3'><div class='h2'>גלו לפי תחום</div><div class='cats'>${Object.keys(CAT).map(k=>`<div class='cat' data-c='${k}' style='background:${CATC[k]}'><div>${CATI[k]}</div>${CAT[k]}</div>`).join('')}</div></div>
  <div class='bc s3'><div class='h2'>איך נשמר הכסף שלכם</div><div class='tl'><div><i>1</i><span><b>משלמים בהזמנה</b>הסכום עובר לחשבון נאמנות</span></div><div><i>2</i><span><b>היוצר מוסר תוכן</b>אתם בודקים ומאשרים</span></div><div><i>3</i><span><b>התשלום משתחרר</b>ללא מרדפים אחרי תשלומים</span></div></div></div>
  ${_U?'':`<div class='bc dark s3'><div class='h2'>יוצרי תוכן? משפיעני רשת?</div><p>הגדירו מחירים לכל שירות ותנו למותגים למצוא אתכם. בלי פניות קרות ובלי משא ומתן מביך.</p><a class='btn b2' style='margin-top:16px' href='#/signup?t=creator'>הירשמו וקבלו פניות לשיתופי פעולה</a></div>`}
- <div class='bc s3 faq'><div class='h2'>שאלות נפוצות</div><details><summary>כמה עולה להשתמש?</summary><p>החיפוש חינם. עמלה של 5% מתווספת להזמנה.</p></details><details><summary>מה אם התוכן לא מתאים?</summary><p>אפשר לבקש תיקון לפני האישור הסופי.</p></details><details><summary>אפשר לקבוע מחיר משלי?</summary><p>כן, יוצרים מגדירים מחירים לכל חבילה.</p></details></div>
+ <div class='bc s3 faq'><div class='h2'>שאלות נפוצות</div><details><summary>כמה עולה להשתמש?</summary><p>כלום. ההרשמה ללא עלות, וגם הצפייה בקמפיינים ללא עלות.</p></details><details><summary>מה אם התוכן לא מתאים?</summary><p>אפשר לבקש תיקון לפני האישור הסופי.</p></details><details><summary>אפשר לקבוע מחיר משלי?</summary><p>כן, יוצרים מגדירים מחירים לכל חבילה.</p></details></div>
  </div><div class='foot'>© ${BRAND} · <a href='#/help'>עזרה</a></div>`);
  $('#hf').onsubmit=e=>{e.preventDefault();location.hash='#/creators?p='+$('#hp').value+'&q='+encodeURIComponent($('#hq').value)};
  $$('.tg').forEach(t=>t.onclick=()=>location.hash='#/creators?q='+encodeURIComponent(t.dataset.q));
@@ -141,7 +142,7 @@ R['/login']=q=>{
 };
 R['/cart']=()=>{
  const draw=()=>{const c=LS.g('cart',[]);const sub=c.reduce((s,x)=>s+x.pr,0);
- frame('#/cart',`<div class='h2' style='font-size:30px'>העגלה שלי</div>${c.length?`<div class='pbody' style='margin-top:20px'><div>${c.map((x,i)=>`<div class='row'><span><b>${cr(x.u).n}</b><small>${x.pk}</small></span><span><b>${ils(x.pr)}</b> <button data-i='${i}' style='margin-right:10px;color:var(--mut)'>✕</button></span></div>`).join('')}</div><div class='bc buy'><div class='dap' style='margin-bottom:12px'><div><b>מצב הדגמה</b><small>אין חיוב אמיתי, והיוצרים לא מקבלים הודעה. לפנייה אמיתית ליוצר, שלחו לו בריף או הודעה מהפרופיל שלו.</small></div></div><div class='row'><span>ביניים</span><b>${ils(sub)}</b></div><div class='row'><span>עמלה (5%)</span><b>${ils(sub*.05)}</b></div><div class='row'><span><b>סה״כ</b></span><b>${ils(sub*1.05)}</b></div><div class='fld'><label>שם על הכרטיס</label><input id='cn'></div><div class='fld'><label>מספר כרטיס (הדגמה)</label><input id='cd' placeholder='4242 4242 4242 4242'></div><button class='btn b2 full' id='pay'>לתשלום</button></div></div>`:`<div class='empty'>העגלה ריקה<br><br><a class='btn b1' href='#/creators'>למציאת יוצרי תוכן ומשפיעני רשת</a></div>`}`);
+ frame('#/cart',`<div class='h2' style='font-size:30px'>העגלה שלי</div>${c.length?`<div class='pbody' style='margin-top:20px'><div>${c.map((x,i)=>`<div class='row'><span><b>${cr(x.u).n}</b><small>${x.pk}</small></span><span><b>${ils(x.pr)}</b> <button data-i='${i}' style='margin-right:10px;color:var(--mut)'>✕</button></span></div>`).join('')}</div><div class='bc buy'><div class='dap' style='margin-bottom:12px'><div><b>מצב הדגמה</b><small>אין חיוב אמיתי, והיוצרים לא מקבלים הודעה. לפנייה אמיתית ליוצר, שלחו לו בריף או הודעה מהפרופיל שלו.</small></div></div><div class='row'><span>ביניים</span><b>${ils(sub)}</b></div><div class='row'><span><b>סה״כ</b></span><b>${ils(sub)}</b></div><div class='fld'><label>שם על הכרטיס</label><input id='cn'></div><div class='fld'><label>מספר כרטיס (הדגמה)</label><input id='cd' placeholder='4242 4242 4242 4242'></div><button class='btn b2 full' id='pay'>לתשלום</button></div></div>`:`<div class='empty'>העגלה ריקה<br><br><a class='btn b1' href='#/creators'>למציאת יוצרי תוכן ומשפיעני רשת</a></div>`}`);
  $$('[data-i]').forEach(b=>b.onclick=()=>{c.splice(+b.dataset.i,1);LS.s('cart',c);draw()});
  const p=$('#pay');if(p)p.onclick=()=>{if(!$('#cn').value.trim()||$('#cd').value.length<12)return toast('מלאו פרטי תשלום');const o=orders();c.forEach((x,i)=>o.unshift({id:8200+o.length+i,u:x.u,pk:x.pk,pr:x.pr,st:'new',d:new Date().toLocaleDateString('he-IL')}));LS.s('orders',o);LS.s('cart',[]);frame('#/orders',`<div class='empty'><div class='bigi'>${SI("<circle cx='12' cy='12' r='9'/><path d='M8 12.5l2.7 2.7L16 9.5'/>")}</div><h2>ההזמנה נשמרה (הדגמה)</h2><p style='margin:8px 0 20px'>לא בוצע חיוב והיוצר לא קיבל את ההזמנה. כדי לפנות ליוצר באמת, שלחו לו בריף או הודעה מהפרופיל שלו.</p><a class='btn b1' href='#/orders'>להזמנות</a></div>`)}};draw();
 };
@@ -220,7 +221,7 @@ R['/studio']=()=>{
  <div class='bc' style='max-width:720px;margin-top:16px'><div class='h2'>כדי לקבל הזמנות, ודאו שמילאתם</div>${steps.map(x=>`<a class='row' href='${x[1]}'><span><b>${x[0]}</b></span><b class='pr'>עריכה ←</b></a>`).join('')}</div>
  ${o.length?`<h3 style='margin:20px 0 10px'>הזמנות אחרונות</h3>${o.slice(0,4).map(x=>`<div class='row'><span><b>${x.pk}</b><small>#${x.id}</small></span><span class='stt ${ST[x.st][1]}'>${ST[x.st][0]}</span></div>`).join('')}`:''}`)
 };
-R['/help']=()=>{const Q=[['איך עובד התשלום?','משלמים בעת ההזמנה והכסף נשמר בנאמנות עד אישור התוכן.'],['מה העמלה?','עמלה של 5% מתווספת להזמנה.'],['אפשר לבקש תיקון?','כן, לפני האישור הסופי.'],['איך מצטרפים כיוצר?','פותחים פרופיל בעמוד ליוצרים ומגדירים שירותים ומחירים.']];frame('#/help',`<div class='h2' style='font-size:30px;margin-bottom:16px'>מרכז עזרה</div><div class='bc faq' style='max-width:720px'>${Q.map(x=>`<details><summary>${x[0]}</summary><p>${x[1]}</p></details>`).join('')}</div>`)};
+R['/help']=()=>{const Q=[['איך עובד התשלום?','משלמים בעת ההזמנה והכסף נשמר בנאמנות עד אישור התוכן.'],['כמה עולה להשתמש?','כלום. ההרשמה ללא עלות, וגם הצפייה בקמפיינים ללא עלות.'],['אפשר לבקש תיקון?','כן, לפני האישור הסופי.'],['איך מצטרפים כיוצר?','פותחים פרופיל בעמוד ליוצרים ומגדירים שירותים ומחירים.']];frame('#/help',`<div class='h2' style='font-size:30px;margin-bottom:16px'>מרכז עזרה</div><div class='bc faq' style='max-width:720px'>${Q.map(x=>`<details><summary>${x[0]}</summary><p>${x[1]}</p></details>`).join('')}</div>`)};
 
 async function creatorHome(U){
  const nm=(U.n||'').split(' ')[0];
@@ -244,10 +245,11 @@ async function creatorHome(U){
 function route(){
  const h=location.hash.slice(1)||'/';const qi=h.indexOf('?');const path=qi<0?h:h.slice(0,qi);const q=new URLSearchParams(qi<0?'':h.slice(qi+1));
  const parts=path.split('/').filter(Boolean);
- if(!LS.g('user')&&['campaigns','campaign','orders','chat','notifications','saved','reports','studio','settings','new','me','cart','admin','open'].includes(parts[0])){if(parts[0]!=='me'){location.replace('#/login');return}}
+ if(!LS.g('user')&&['campaigns','campaign','orders','chat','notifications','saved','reports','studio','settings','new','me','cart','admin','open','agency'].includes(parts[0])){if(parts[0]!=='me'){location.replace('#/login');return}}
  const UR=(LS.g('user')||{}).r;
- if(UR==='creator'&&['creators','creator','campaigns','campaign','saved','reports','new','cart','join'].includes(parts[0])&&!(parts[0]==='creator'&&parts[1]==='example')){location.replace('#/me');return}
- if(UR==='advertiser'&&['studio','join','open'].includes(parts[0])){location.replace('#/campaigns');return}
+ if(UR==='agent'&&['campaigns','campaign','orders','saved','reports','studio','new','cart','join','open','me'].includes(parts[0])){location.replace('#/');return}
+ if(UR==='creator'&&['creators','creator','campaigns','campaign','saved','reports','new','cart','join','agency'].includes(parts[0])&&!(parts[0]==='creator'&&parts[1]==='example')){location.replace('#/me');return}
+ if(UR==='advertiser'&&['studio','join','open','agency'].includes(parts[0])){location.replace('#/campaigns');return}
  if(!LS.g('user')&&parts[0]==='creator'&&parts[1]!=='example'){toast('הפרופילים גלויים לחברים רשומים בלבד');location.replace('#/creators');return}
  if(parts[0]==='creator'&&parts[1])return R['/creator'](q,parts[1]);
  (R['/'+(parts[0]||'')]||R['/'])(q);

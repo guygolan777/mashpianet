@@ -6,6 +6,7 @@ const initial=n=>(String(n||'?').trim()[0]||'?');
 function navFor(U){
  const H=['#/','home','בית'];
  if(!U)return [H,['#/creators','users','יוצרים'],['#/join','spark','ליוצרים'],['#/signup','plus','הרשמה']];
+ if(U.r==='agent')return [H,['#/creators','users','יוצרים'],['#/chat','chat','הודעות']];
  if(U.r==='creator')return [H,['#/open','mega','קמפיינים'],['#/me','users','פרופיל'],['#/chat','chat','הודעות']];
  return [H,['#/campaigns','mega','קמפיינים'],'plus',['#/creators','users','יוצרים'],['#/chat','chat','הודעות']]}
 function shellExtras(route){
@@ -168,9 +169,11 @@ R['/settings']=async()=>{
  const {data:{session}}=await sb.auth.getSession();if(!session){location.hash='#/login';return}
  frame('#/settings',`<div class='h2' style='font-size:30px;margin-bottom:16px'>הגדרות</div><div class='sub'>טוען...</div>`);
  const {data:pr}=await sb.from('profiles').select('full_name,phone').eq('id',session.user.id).maybeSingle();
+ let rep=null;if((LS.g('user',{})||{}).r==='creator'){const rr=await sb.from('agency_creators').select('agent_id,agency_profiles(agency_name)').eq('creator_id',session.user.id).maybeSingle();rep=rr.data}
  if(curPath()!=='/settings')return;
  const U=LS.g('user',{})||{};
- frame('#/settings',`<div class='h2' style='font-size:30px;margin-bottom:16px'>הגדרות</div><div class='bc' style='max-width:560px'><form id='stf' novalidate><div class='fld'><label>שם מלא</label><input id='sn' autocomplete='name' value='${E((pr&&pr.full_name)||U.n||'')}'></div><div class='fld'><label>טלפון</label><input id='sp' type='tel' autocomplete='tel' value='${E((pr&&pr.phone)||'')}'></div><div class='fld'><label>אימייל (להתחברות)</label><input value='${E(session.user.email)}' dir='ltr' disabled></div><div class='fld'><label>סיסמה חדשה (השאירו ריק כדי לא לשנות)</label><input id='spw' type='password' autocomplete='new-password' placeholder='לפחות 8 תווים'></div><div class='err' id='er'></div><button class='btn b1' id='ss'>שמירה</button> <button type='button' class='btn b3' id='lo'>${ico('out')} התנתקות</button></form></div>`);
+ frame('#/settings',`<div class='h2' style='font-size:30px;margin-bottom:16px'>הגדרות</div><div class='bc' style='max-width:560px'><form id='stf' novalidate><div class='fld'><label>שם מלא</label><input id='sn' autocomplete='name' value='${E((pr&&pr.full_name)||U.n||'')}'></div><div class='fld'><label>טלפון</label><input id='sp' type='tel' autocomplete='tel' value='${E((pr&&pr.phone)||'')}'></div><div class='fld'><label>אימייל (להתחברות)</label><input value='${E(session.user.email)}' dir='ltr' disabled></div><div class='fld'><label>סיסמה חדשה (השאירו ריק כדי לא לשנות)</label><input id='spw' type='password' autocomplete='new-password' placeholder='לפחות 8 תווים'></div><div class='err' id='er'></div><button class='btn b1' id='ss'>שמירה</button> <button type='button' class='btn b3' id='lo'>${ico('out')} התנתקות</button></form></div>${rep?`<div class='bc' style='max-width:560px;margin-top:14px'><div class='h2'>ייצוג</div><p class='sub'>אתם מיוצגים על ידי <b>${E(rep.agency_profiles&&rep.agency_profiles.agency_name||'סוכנות')}</b>. הודעות והזמנות ממפרסמים מגיעות אליה.</p><button type='button' class='btn b3' id='rpx'>הסרת הייצוג</button></div>`:''}`);
+ $('#rpx')&&($('#rpx').onclick=async()=>{if(!confirm('להסיר את הייצוג? הודעות ממפרסמים יחזרו אליכם.'))return;const {error}=await sb.from('agency_creators').delete().eq('creator_id',session.user.id);if(error)return toast('ההסרה נכשלה');toast('הייצוג הוסר');if(typeof loadAgMap==='function')loadAgMap(true);R['/settings']()});
  $('#lo').onclick=logout;
  $('#stf').onsubmit=async e=>{e.preventDefault();
   const n=$('#sn').value.trim();if(!n)return showErr('נא למלא שם');

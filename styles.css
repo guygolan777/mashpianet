@@ -235,3 +235,5 @@ details.svg>summary.svt{cursor:pointer;list-style:none;display:flex;justify-cont
 .vpt{font-size:13px;font-variant-numeric:tabular-nums;direction:ltr;min-width:34px;text-align:center}
 .mfile{display:flex;align-items:center;gap:10px;background:#fff;border:1px solid var(--line);border-radius:18px;padding:12px 14px;color:var(--ink);max-width:260px}.mfile .si{width:22px;height:22px;flex:none;stroke:var(--sky2)}.mfile span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .lbx{position:fixed;inset:0;z-index:120;background:rgba(0,0,0,.88);display:grid;place-items:center;cursor:zoom-out}.lbx img{max-width:94vw;max-height:90vh;border-radius:12px}
+.agb{display:inline-block;background:#fff4e0;color:#9a5b00;font-size:12px;font-weight:700;padding:3px 10px;border-radius:20px;margin-bottom:4px}
+.acn .agb{display:block;width:fit-content}
