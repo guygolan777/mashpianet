@@ -17,7 +17,14 @@ const area=(id,label,ph,val)=>`<div class='fld'><label>${label}</label><textarea
 const chipSet=(grp,opts,on)=>`<div class='pill' data-grp='${grp}'>${opts.map(o=>`<button type='button' class='ch ${(on||[]).includes(o)?'on':''}' data-v='${E(o)}'>${E(o)}</button>`).join('')}</div>`;
 const val=id=>{const e=$('#'+id);return e?e.value.trim():''};
 const picked=grp=>$$('[data-grp='+grp+'] .ch.on').map(b=>b.dataset.v);
-const numOrNull=id=>{const v=val(id);if(!v)return null;const n=Number(v);return Number.isInteger(n)&&n>=0&&n<1e9?n:NaN};
+const parseCount=raw=>{
+ const t=String(raw==null?'':raw).trim().toLowerCase().replace(/\s+/g,'');if(t==='')return null;
+ const m=t.match(/^([\d.,]+)(k|אלף|א'|m|מיליון)?$/);if(!m)return NaN;
+ let num=m[1];const suf=m[2];
+ if(suf){const mult=/^(k|אלף|א')$/.test(suf)?1e3:1e6;const v=parseFloat(num.replace(',','.'));return Number.isFinite(v)?Math.round(v*mult):NaN}
+ if(/^\d{1,3}([.,]\d{3})+$/.test(num))num=num.replace(/[.,]/g,'');else if(/[.,]/.test(num))return NaN;
+ const v=parseInt(num,10);return Number.isFinite(v)?v:NaN};
+const numOrNull=id=>{const v=val(id);if(!v)return null;const n=parseCount(v);return Number.isInteger(n)&&n>=0&&n<1e9?n:NaN};
 const bindChips=()=>$$('.pill[data-grp] .ch').forEach(b=>b.onclick=()=>b.classList.toggle('on'));
 const draftGet=k=>{try{return JSON.parse(localStorage.getItem('draft:'+k)||'{}')}catch(e){return {}}};
 const draftClear=k=>{try{localStorage.removeItem('draft:'+k)}catch(e){}};
@@ -127,24 +134,32 @@ const renderWorks=()=>{
  const g=$('#wkgrid');if(!g)return;
  g.innerHTML=WORKS.map((w,i)=>w.del?'':`<div class='wkt'>${w.media==='video'?`<video src='${E(w.url)}#t=0.1' muted playsinline preload='auto'></video><em class='wkv'><svg viewBox='0 0 24 24' fill='#fff'><path d='M8 5v14l11-7z'/></svg></em>`:`<img src='${E(w.url)}' alt=''>`}<span>${WK[w.kind]}${w.file?' · חדש':''}</span><button type='button' class='wkx' data-i='${i}' aria-label='הסרה'>✕</button></div>`).join('');
  $$('.wkx',g).forEach(b=>b.onclick=()=>{const w=WORKS[+b.dataset.i];if(w.file){URL.revokeObjectURL(w.url);WORKS.splice(+b.dataset.i,1)}else w.del=true;renderWorks();if(WORKS_UID)autoSync()})};
-const addWorkFiles=files=>{
- let bad=0;
- for(const f of files){
-  if(!MIME_EXT[f.type]){bad++;continue}
-  if(f.size>MAX_WORK_MB*1048576){bad++;continue}
-  if(WORKS.filter(w=>!w.del).length>=MAX_WORKS){showErr('אפשר להעלות עד '+MAX_WORKS+' עבודות');break}
-  WORKS.push({kind:$('#wkk').value,media:f.type.startsWith('video')?'video':'image',file:f,url:URL.createObjectURL(f)})}
- if(bad)showErr('חלק מהקבצים לא נוספו. מותרים תמונות (JPG, PNG, WebP, GIF) וסרטונים (MP4, MOV, WebM) עד '+MAX_WORK_MB+'MB');
- renderWorks()};
+const EXT_MIME={jpg:'image/jpeg',jpeg:'image/jpeg',png:'image/png',webp:'image/webp',gif:'image/gif',mp4:'video/mp4',m4v:'video/mp4',mov:'video/quicktime',webm:'video/webm'};
+const fileMime=f=>{if(MIME_EXT[f.type])return f.type;const ext=(f.name.split('.').pop()||'').toLowerCase();return EXT_MIME[ext]||''};
+const mb=n=>(n/1048576).toFixed(1)+'MB';
+const addWorkFiles=async files=>{
+ const probs=[];
+ for(let f of files){
+  const nm=(f.name||'קובץ').slice(0,30);
+  if(WORKS.filter(w=>!w.del).length>=MAX_WORKS){probs.push('אפשר להעלות עד '+MAX_WORKS+' עבודות');break}
+  let mt=fileMime(f);
+  if(!mt){probs.push(nm+': סוג הקובץ לא נתמך'+(/hei[cf]/i.test(f.type+f.name)?' (HEIC). בחרו או צלמו כ־JPG':'')+'. מותרים תמונות JPG, PNG, WebP, GIF וסרטונים MP4, MOV, WebM');continue}
+  if(mt.startsWith('image/')&&mt!=='image/gif'&&f.size>2*1048576){
+   try{const d=await shrinkImg(f,1600);const blob=await (await fetch(d)).blob();f=new File([blob],nm.replace(/\.[a-z0-9]+$/i,'')+'.jpg',{type:'image/jpeg'});mt='image/jpeg'}catch(x){}}
+  if(f.size>MAX_WORK_MB*1048576){probs.push(nm+': הקובץ גדול מדי ('+mb(f.size)+', המקסימום '+MAX_WORK_MB+'MB). אפשר לכווץ את הסרטון או לקצר אותו');continue}
+  if(f.type!==mt)f=new File([f],f.name,{type:mt});
+  WORKS.push({kind:$('#wkk').value,media:mt.startsWith('video')?'video':'image',file:f,url:URL.createObjectURL(f)})}
+ if(probs.length)showErr(probs.slice(0,3).join(' | '));
+ renderWorks();return probs.length};
 const worksInit=list=>{
  WORKS=(list||[]).map(w=>({id:w.id,kind:w.kind,media:w.media_type,path:w.path,url:sb.storage.from('creator-works').getPublicUrl(w.path).data.publicUrl}));
  renderWorks();
  const inpf=$('#wkf'),dz=$('#wkdrop');
- inpf.onchange=()=>{addWorkFiles([...inpf.files]);inpf.value='';if(WORKS_UID)autoSync()};
+ inpf.onchange=()=>{const fl=[...inpf.files];inpf.value='';addWorkFiles(fl).then(()=>{if(WORKS_UID)autoSync()})};
  dz.onclick=()=>inpf.click();
  dz.ondragover=e=>{e.preventDefault();dz.classList.add('over')};
  dz.ondragleave=()=>dz.classList.remove('over');
- dz.ondrop=e=>{e.preventDefault();dz.classList.remove('over');addWorkFiles([...e.dataTransfer.files]);if(WORKS_UID)autoSync()}};
+ dz.ondrop=e=>{e.preventDefault();dz.classList.remove('over');addWorkFiles([...e.dataTransfer.files]).then(()=>{if(WORKS_UID)autoSync()})}};
 async function syncWorks(uid){
  let fails=0;
  const rm=WORKS.filter(w=>w.del&&w.id);
@@ -184,9 +199,9 @@ const readSvc=()=>{const services=[],addons=[];
  for(const [g,items] of SVC_CATALOG)for(const [k,t] of items){if(!$('#sv_'+k).checked)continue;if($('#svq_'+k)&&$('#svq_'+k).checked){services.push({key:k,price:0,private:true,included:$('#svi_'+k).value.trim().slice(0,400)});continue}const raw=$('#svp_'+k).value.trim();const p=Number(raw);if(raw===''||!Number.isInteger(p)||p<0||p>10000000)return {error:'נא להזין מחיר תקין (מספר שלם) עבור "'+t+'"'};services.push({key:k,price:p,included:$('#svi_'+k).value.trim().slice(0,400)})}
  for(const [k,t,kind] of ADDON_CATALOG){if(!$('#ad_'+k).checked)continue;const raw=$('#adv_'+k).value.trim();const p=Number(raw);if(raw===''||!Number.isInteger(p)||p<0||p>(kind==='percent'?300:10000000))return {error:'נא להזין ערך תקין עבור התוספת "'+t+'"'};addons.push({key:k,kind,value:p,note:$('#adn_'+k).value.trim().slice(0,400)})}
  return {services,addons}};
-const insForm=v=>{v=v||{};const nv=x=>x==null?'':x;return `<div class='sech' id='insights'>נתוני ביצועים</div><p class='hint' style='margin:-4px 0 10px'>נתונים אלה מוצגים למפרסמים בלשונית "נתוני קהל". כרגע הם מוזנים ידנית ומסומנים כ"לא מאומת". חיבור רשמי לאינסטגרם, שיציג גם נתוני קהל מאומתים, יתווסף בקרוב.</p><div class='g3'>${inp('ilk','לייקים בממוצע לפוסט','number','500',nv(v.avg_likes),'min=0')}${inp('icm','תגובות בממוצע לפוסט','number','20',nv(v.avg_comments),'min=0')}${inp('ivw','צפיות בממוצע לרילס','number','5000',nv(v.avg_views),'min=0')}</div><div class='g2'>${inp('ipo','מספר פוסטים','number','300',nv(v.posts),'min=0')}<div class='fld'><label>חיבור לאינסטגרם</label><button type='button' class='btn b3 full' disabled title='יהיה זמין בקרוב'>חברו אינסטגרם (בקרוב)</button></div></div>`};
+const insForm=v=>{v=v||{};const nv=x=>x==null?'':x;return `<div class='sech' id='insights'>נתוני ביצועים</div><p class='hint' style='margin:-4px 0 10px'>נתונים אלה מוצגים למפרסמים בלשונית "נתוני קהל". כרגע הם מוזנים ידנית ומסומנים כ"לא מאומת". חיבור רשמי לאינסטגרם, שיציג גם נתוני קהל מאומתים, יתווסף בקרוב.</p><div class='g3'>${inp('ilk','לייקים בממוצע לפוסט','text','500',nv(v.avg_likes),'inputmode=numeric')}${inp('icm','תגובות בממוצע לפוסט','text','20',nv(v.avg_comments),'inputmode=numeric')}${inp('ivw','צפיות בממוצע לרילס','text','5000',nv(v.avg_views),'inputmode=numeric')}</div><div class='g2'>${inp('ipo','מספר פוסטים','text','300',nv(v.posts),'inputmode=numeric')}<div class='fld'><label>חיבור לאינסטגרם</label><button type='button' class='btn b3 full' disabled title='יהיה זמין בקרוב'>חברו אינסטגרם (בקרוב)</button></div></div>`};
 const readIns=()=>{const o={};for(const [k,id,l] of [['avg_likes','ilk','לייקים'],['avg_comments','icm','תגובות'],['avg_views','ivw','צפיות'],['posts','ipo','פוסטים']]){const n=numOrNull(id);if(Number.isNaN(n)||(n!=null&&(n<0||n>1e9||!Number.isInteger(n))))return {error:'הערך בשדה "'+l+'" אינו תקין'};o[k]=n}return {o}};
-const crDetails=(v,withPricing)=>{v=v||{};const nv=x=>x==null?'':x;return `<div class='esec' data-s='prof'><div class='sech' id='prof'>פרופיל יוצר</div><div class='g2'>${inp('dn','שם שיוצג בפרופיל *','text','איך מכירים אתכם ברשת',v.display_name)}${inp('city','עיר','text','תל אביב',v.city)}</div><div class='fld'><label>תחומי תוכן * (אפשר לבחור כמה)</label>${chipSet('niches',NICHES_ALL,v.niches)}</div>${area('bio','קצת עליכם','תארו את הסגנון שלכם ואת סוג התוכן שאתם יוצרים',v.bio)}<div class='sech'>הקישורים שלכם לרשתות (לא חובה, אפשר להוסיף גם אחר כך)</div><div class='g2'>${inp('ig','קישור לאינסטגרם (לא חובה)','text','https://instagram.com/username',socUrl('ig',v.instagram),'dir=ltr')}${inp('igf','עוקבים באינסטגרם','number','4200',nv(v.followers_ig),'min=0')}${inp('tt','קישור לטיקטוק (לא חובה)','text','https://tiktok.com/@username',socUrl('tt',v.tiktok),'dir=ltr')}${inp('ttf','עוקבים בטיקטוק','number','15000',nv(v.followers_tt),'min=0')}${inp('yt','קישור ליוטיוב (לא חובה)','text','https://youtube.com/@channel',socUrl('yt',v.youtube),'dir=ltr')}${inp('ytf','מנויים ביוטיוב','number','800',nv(v.followers_yt),'min=0')}</div></div>${withPricing?`<div class='esec' data-s='pricing'>${svcHtml(v.services,v.addons)}</div><div class='esec' data-s='packages'><details class='opt'><summary>חבילות (לא חובה)</summary>${pkgHtml()}</details></div><div class='esec' data-s='insights'><details class='opt'><summary>נתוני ביצועים (לא חובה)</summary>${insForm(v.insights)}</details></div>`:''}<div class='esec' data-s='works'>${worksHtml()}</div>`};
+const crDetails=(v,withPricing)=>{v=v||{};const nv=x=>x==null?'':x;return `<div class='esec' data-s='prof'><div class='sech' id='prof'>פרופיל יוצר</div><div class='g2'>${inp('dn','שם שיוצג בפרופיל *','text','איך מכירים אתכם ברשת',v.display_name)}${inp('city','עיר','text','תל אביב',v.city)}</div><div class='fld'><label>תחומי תוכן * (אפשר לבחור כמה)</label>${chipSet('niches',NICHES_ALL,v.niches)}</div>${area('bio','קצת עליכם','תארו את הסגנון שלכם ואת סוג התוכן שאתם יוצרים',v.bio)}<div class='sech'>הקישורים שלכם לרשתות (לא חובה, אפשר להוסיף גם אחר כך)</div><div class='g2'>${inp('ig','קישור לאינסטגרם (לא חובה)','text','https://instagram.com/username',socUrl('ig',v.instagram),'dir=ltr')}${inp('igf','עוקבים באינסטגרם','text','למשל 45000 או 45K',nv(v.followers_ig),'inputmode=numeric')}${inp('tt','קישור לטיקטוק (לא חובה)','text','https://tiktok.com/@username',socUrl('tt',v.tiktok),'dir=ltr')}${inp('ttf','עוקבים בטיקטוק','text','למשל 45000 או 45K',nv(v.followers_tt),'inputmode=numeric')}${inp('yt','קישור ליוטיוב (לא חובה)','text','https://youtube.com/@channel',socUrl('yt',v.youtube),'dir=ltr')}${inp('ytf','מנויים ביוטיוב','text','למשל 45000 או 45K',nv(v.followers_yt),'inputmode=numeric')}</div></div>${withPricing?`<div class='esec' data-s='pricing'>${svcHtml(v.services,v.addons)}</div><div class='esec' data-s='packages'><details class='opt'><summary>חבילות (לא חובה)</summary>${pkgHtml()}</details></div><div class='esec' data-s='insights'><details class='opt'><summary>נתוני ביצועים (לא חובה)</summary>${insForm(v.insights)}</details></div>`:''}<div class='esec' data-s='works'>${worksHtml()}</div>`};
 const readCr=()=>{
  const dn=val('dn');if(!dn)return {error:'נא למלא שם שיוצג בפרופיל'};
  const niches=picked('niches');if(!niches.length)return {error:'נא לבחור לפחות תחום תוכן אחד'};
@@ -211,8 +226,10 @@ function brandForm(){
   await doSignup('advertiser',val('em').toLowerCase(),$('#pw').value,fn,r.d,$('#sb'))}}
 
 const AV_KEY='pendingAvatar';
-const shrinkImg=f=>new Promise((ok,no)=>{const im=new Image(),u=URL.createObjectURL(f);im.onload=()=>{const m=640,k=Math.min(1,m/Math.max(im.width,im.height));const c=document.createElement('canvas');c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);c.getContext('2d').drawImage(im,0,0,c.width,c.height);URL.revokeObjectURL(u);ok(c.toDataURL('image/jpeg',.85))};im.onerror=()=>{URL.revokeObjectURL(u);no()};im.src=u});
-async function flushPendingAvatar(uid){
+const shrinkImg=(f,max)=>new Promise((ok,no)=>{const im=new Image(),u=URL.createObjectURL(f);im.onload=()=>{const m=max||640,k=Math.min(1,m/Math.max(im.width,im.height));const c=document.createElement('canvas');c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);c.getContext('2d').drawImage(im,0,0,c.width,c.height);URL.revokeObjectURL(u);ok(c.toDataURL('image/jpeg',.85))};im.onerror=()=>{URL.revokeObjectURL(u);no()};im.src=u});
+let AV_BUSY=false;
+async function flushPendingAvatar(uid){if(AV_BUSY)return;AV_BUSY=true;try{await flushPendingAvatarRaw(uid)}finally{AV_BUSY=false}}
+async function flushPendingAvatarRaw(uid){
  let d=null;try{d=localStorage.getItem(AV_KEY)}catch(e){}
  if(!d||!sb||!uid)return;
  try{const blob=await (await fetch(d)).blob();const path=uid+'/avatar-'+Date.now()+'.jpg';
@@ -220,7 +237,7 @@ async function flushPendingAvatar(uid){
   const u2=await sb.from('creator_profiles').update({avatar_path:path}).eq('user_id',uid);if(u2.error)return;
   const U=LS.g('user',null);if(U){U.p=sb.storage.from('creator-works').getPublicUrl(path).data.publicUrl;LS.s('user',U)}
   localStorage.removeItem(AV_KEY)}catch(e){}}
-const crSignup=v=>{v=v||{};return `<div class='sech'>הפרופיל שלכם</div><label class='avpick'><span class='avpv' id='avpv'>${SI("<path d='M4 8h3l2-3h6l2 3h3v11H4z'/><circle cx='12' cy='13' r='3.5'/>")}</span><span><b>תמונת פרופיל *</b><small>תמונה שלכם (פנים), נפרדת מהעבודות. JPG, PNG או WebP</small></span><input type='file' id='avs' accept='image/jpeg,image/png,image/webp' hidden></label>${inp('dn','שם שיוצג בפרופיל (אם ריק, נשתמש בשם המלא)','text','איך מכירים אתכם ברשת')}<div class='fld'><label>תחומי תוכן * (אפשר לבחור כמה)</label>${chipSet('niches',NICHES_ALL,[])}</div><div class='g2'>${inp('ig','קישור לאינסטגרם (לא חובה)','text','https://instagram.com/username',socUrl('ig',v.instagram),'dir=ltr')}${inp('igf','עוקבים באינסטגרם (לא חובה)','number','4200','','min=0')}</div><details class='opt'><summary>עוד פרטים (לא חובה)</summary><div class='g2'>${inp('city','עיר','text','תל אביב')}${inp('tt','קישור לטיקטוק','text','https://tiktok.com/@username','','dir=ltr')}${inp('ttf','עוקבים בטיקטוק','number','15000','','min=0')}${inp('yt','קישור ליוטיוב','text','https://youtube.com/@channel','','dir=ltr')}${inp('ytf','מנויים ביוטיוב','number','800','','min=0')}</div>${area('bio','קצת עליכם','תארו את הסגנון שלכם ואת סוג התוכן שאתם יוצרים','')}</details><p class='hint'>את התמונה, העבודות והמחירון משלימים אחרי ההרשמה, בכמה לחיצות.</p>`};
+const crSignup=v=>{v=v||{};return `<div class='sech'>הפרופיל שלכם</div><label class='avpick'><span class='avpv' id='avpv'>${SI("<path d='M4 8h3l2-3h6l2 3h3v11H4z'/><circle cx='12' cy='13' r='3.5'/>")}</span><span><b>תמונת פרופיל *</b><small>תמונה שלכם (פנים), נפרדת מהעבודות. JPG, PNG או WebP</small></span><input type='file' id='avs' accept='image/jpeg,image/png,image/webp' hidden></label>${inp('dn','שם שיוצג בפרופיל (אם ריק, נשתמש בשם המלא)','text','איך מכירים אתכם ברשת')}<div class='fld'><label>תחומי תוכן * (אפשר לבחור כמה)</label>${chipSet('niches',NICHES_ALL,[])}</div><div class='g2'>${inp('ig','קישור לאינסטגרם (לא חובה)','text','https://instagram.com/username',socUrl('ig',v.instagram),'dir=ltr')}${inp('igf','עוקבים באינסטגרם (לא חובה)','text','למשל 45000 או 45K','','inputmode=numeric')}</div><details class='opt'><summary>עוד פרטים (לא חובה)</summary><div class='g2'>${inp('city','עיר','text','תל אביב')}${inp('tt','קישור לטיקטוק','text','https://tiktok.com/@username','','dir=ltr')}${inp('ttf','עוקבים בטיקטוק','text','למשל 45000 או 45K','','inputmode=numeric')}${inp('yt','קישור ליוטיוב','text','https://youtube.com/@channel','','dir=ltr')}${inp('ytf','מנויים ביוטיוב','text','למשל 45000 או 45K','','inputmode=numeric')}</div>${area('bio','קצת עליכם','תארו את הסגנון שלכם ואת סוג התוכן שאתם יוצרים','')}</details><p class='hint'>את התמונה, העבודות והמחירון משלימים אחרי ההרשמה, בכמה לחיצות.</p>`};
 function creatorForm(h){
  authShell('הרשמה ליוצרי תוכן ומשפיעני רשת',`<span class='steps2'><b class='on'>1</b> פרופיל <i></i><b>2</b> מחירון וחבילות</span>`,
  `<form id='sf' novalidate><div class='fld'><label>שם מלא *</label><input id='fn' autocomplete='name' placeholder='שם פרטי ושם משפחה'></div>${accountFields()}${crSignup({instagram:handleOf(h)})}<label class='chk'><input type='checkbox' id='tos'><span>קראתי ואני מסכים לתנאי השימוש ולמדיניות הפרטיות, ואני מאשר שאני בן או בת 18 ומעלה</span></label><div class='err' id='er'></div><button class='btn b1 full' id='sb'>יצירת פרופיל והמשך לבניית מחירון</button></form><p class='sub' style='margin-top:16px;text-align:center'>כבר רשומים? <a href='#/login' style='color:var(--sky2);font-weight:600'>התחברות</a> · <a href='#/signup'>חזרה לבחירת מסלול</a></p>`,1);
@@ -286,8 +303,8 @@ const shk=n=>'₪'+Number(n).toLocaleString('he-IL');
 
 const SOCN={ig:['אינסטגרם','instagram','followers_ig','https://instagram.com/username'],tt:['טיקטוק','tiktok','followers_tt','https://tiktok.com/@username'],yt:['יוטיוב','youtube','followers_yt','https://youtube.com/@channel']};
 function addSocial(k,uid){const [n,col,fcol,ph]=SOCN[k];
- const m=modal(`<h3>הוספת ${n}</h3><p class='sub'>הדביקו קישור לפרופיל ואפשר להוסיף מספר עוקבים.</p><div class='fld'><label>קישור ל${n}</label><input id='qs_l' dir='ltr' placeholder='${ph}'></div><div class='fld'><label>עוקבים (לא חובה)</label><input id='qs_f' type='number' min='0' placeholder='4200'></div><div class='err' id='qs_e'></div><button class='btn b1 full' id='qs_s'>שמירה</button>`);
- $('#qs_s').onclick=async()=>{const h=parseSocial('qs_l',k);if(h===null||!h){const er=$('#qs_e');er.textContent='הקישור לא תקין. הדביקו קישור מהפרופיל, למשל '+ph;er.classList.add('show');return}const raw=$('#qs_f').value.trim();const fn=raw===''?null:Number(raw);if(fn!==null&&(!Number.isInteger(fn)||fn<0))return toast('מספר עוקבים לא תקין');const row={[col]:h};if(fn!==null)row[fcol]=fn;const {error}=await sb.from('creator_profiles').update(row).eq('user_id',uid);if(error)return toast('השמירה נכשלה');m.remove();toast(n+' נוסף לפרופיל');R['/me']()}}
+ const m=modal(`<h3>הוספת ${n}</h3><p class='sub'>הדביקו קישור לפרופיל ואפשר להוסיף מספר עוקבים.</p><div class='fld'><label>קישור ל${n}</label><input id='qs_l' dir='ltr' placeholder='${ph}'></div><div class='fld'><label>עוקבים (לא חובה)</label><input id='qs_f' type='text' inputmode='numeric' placeholder='למשל 45000 או 45K'></div><div class='err' id='qs_e'></div><button class='btn b1 full' id='qs_s'>שמירה</button>`);
+ $('#qs_s').onclick=async()=>{const h=parseSocial('qs_l',k);if(h===null||!h){const er=$('#qs_e');er.textContent='הקישור לא תקין. הדביקו קישור מהפרופיל, למשל '+ph;er.classList.add('show');return}const raw=$('#qs_f').value.trim();const fn=raw===''?null:parseCount(raw);if(fn!==null&&(!Number.isInteger(fn)||fn<0))return toast('מספר עוקבים לא תקין. אפשר לכתוב 45000 או 45K');const row={[col]:h};if(fn!==null)row[fcol]=fn;const {error}=await sb.from('creator_profiles').update(row).eq('user_id',uid);if(error)return toast('השמירה נכשלה');m.remove();toast(n+' נוסף לפרופיל');R['/me']()}}
 function meView(pr,det,pk,wk,email,uid,own=true){
  const urls=wk.map(w=>({...w,url:sb.storage.from('creator-works').getPublicUrl(w.path).data.publicUrl}));
  const imgs=urls.filter(w=>w.media_type!=='video'),vids=urls.filter(w=>w.media_type==='video');
@@ -317,7 +334,7 @@ function meView(pr,det,pk,wk,email,uid,own=true){
   <div class='pstats'><div><b>${fol?nfmt(fol):'—'}</b><small>עוקבים</small></div><div><b>${urls.length}</b><small>עבודות</small></div><div><b>${sv.length}</b><small>שירותים במחירון</small></div><div><b>${pk.length}</b><small>חבילות</small></div></div>
   <div class='socs'>${soc}${(own?[['ig','אינסטגרם',det.instagram],['tt','טיקטוק',det.tiktok],['yt','יוטיוב',det.youtube]]:[]).filter(x=>!x[2]).map(x=>`<button class='soc addsoc' data-k='${x[0]}'>＋ הוסיפו ${x[1]}</button>`).join('')}</div>
   <div class='tabs' id='tb'>${tabs.map((t,i)=>`<button data-i='${i}'>${t}</button>`).join('')}</div><div id='tc'>${tabs.map((t,i)=>`<section class='psec' id='m_${i}'><h3>${t}</h3>${body[t]()}</section>`).join('')}</div>
-  ${own?`<p class='sub' style='margin-top:20px'>כך מותגים רואים את הפרופיל שלכם. <button class='btn b3 sm' id='lo3'>${ico('out')} התנתקות</button></p>`:`<div class='sbar'>${sv.some(z=>!z.price_private)?`<div class='sbp'><small>החל מ־</small><b>${shk(Math.min(...sv.filter(z=>!z.price_private).map(z=>z.price)))}</b></div>`:sv.length?`<div class='sbp'><b style='font-size:16px'>מחיר בפרטי</b></div>`:''}<div class='sbb'>${(LS.g('user',{})||{}).r==='agent'?`<button class='btn b2' id='sag' data-u='${uid}'>הוספה לרשימת המיוצגים</button>`:`<button class='btn b3 sbm' id='sbm' aria-label='שליחת הודעה'>${SI("<path d='M21 12a8 8 0 0 1-11.5 7.2L4 20l1-4.5A8 8 0 1 1 21 12z'/>")} הודעה</button><button class='btn b2' id='sbr'>שליחת בריף ${SI("<path d='M22 2L11 13M22 2l-7 20-4-9-9-4z'/>")}</button>`}</div></div>`}`);
+  ${own?`<p class='sub' style='margin-top:20px'>כך מותגים רואים את הפרופיל שלכם. <button class='btn b3 sm' id='lo3'>${ico('out')} התנתקות</button></p>`:`<div class='sbar'>${sv.some(z=>!z.price_private)?`<div class='sbp'>${(()=>{const m=sv.filter(z=>!z.price_private).sort((a,b)=>a.price-b.price)[0];return `<small>החל מ־</small><b>${shk(m.price)}</b><small>${E(svcTitle[m.service_key]||'')}</small>`})()}</div>`:sv.length?`<div class='sbp'><b style='font-size:16px'>מחיר בפרטי</b></div>`:''}<div class='sbb'>${(LS.g('user',{})||{}).r==='agent'?`<button class='btn b2' id='sag' data-u='${uid}'>הוספה לרשימת המיוצגים</button>`:`<button class='btn b3 sbm' id='sbm' aria-label='שליחת הודעה'>${SI("<path d='M21 12a8 8 0 0 1-11.5 7.2L4 20l1-4.5A8 8 0 1 1 21 12z'/>")} הודעה</button><button class='btn b2' id='sbr'>שליחת בריף ${SI("<path d='M22 2L11 13M22 2l-7 20-4-9-9-4z'/>")}</button>`}</div></div>`}`);
   if($('#sbr'))$('#sbr').onclick=()=>sendBrief(uid,name);if($('#sbm'))$('#sbm').onclick=()=>startConv(uid,null);
   $$('#tb button').forEach(b=>b.onclick=()=>{const t=$('#m_'+b.dataset.i);if(t)t.scrollIntoView({behavior:'smooth',block:'start'})});if($('#lo3'))$('#lo3').onclick=logout;
   $$('.addsoc').forEach(b=>b.onclick=()=>addSocial(b.dataset.k,uid));
