@@ -155,7 +155,10 @@ async function chatThread(cid){
  cfile.onchange=async()=>{const files=[...cfile.files];cfile.value='';
   for(const f of files){
    const tmp=document.createElement('div');tmp.className='mb me up';tmp.innerHTML=`<div class='mt2'>מעלה ${E(f.name.slice(0,40))}...</div>`;box.append(tmp);box.scrollTop=box.scrollHeight;
-   const m=await sendMedia(cid,f,f.type,f.name,0);tmp.remove();if(m)await push(m)}};
+   let ff=f;
+   if(f.type.startsWith('video/')&&f.size>CHAT_MAX_MB*1048576&&typeof compressVideo==='function'){
+    try{ff=await compressVideo(f,{maxDim:960,kbps:1800,maxSec:180,onProgress:p=>{tmp.innerHTML=`<div class='mt2'>מכווץ סרטון ${p}%...</div>`}})}catch(x){tmp.remove();toast('הסרטון גדול מדי ולא הצלחנו לכווץ אותו (עד '+CHAT_MAX_MB+'MB)');continue}}
+   const m=await sendMedia(cid,ff,ff.type,ff.name,0);tmp.remove();if(m)await push(m)}};
  /* voice messages */
  let rec=null;
  function stopRec(send){

@@ -137,6 +137,32 @@ const renderWorks=()=>{
 const EXT_MIME={jpg:'image/jpeg',jpeg:'image/jpeg',png:'image/png',webp:'image/webp',gif:'image/gif',mp4:'video/mp4',m4v:'video/mp4',mov:'video/quicktime',webm:'video/webm'};
 const fileMime=f=>{if(MIME_EXT[f.type])return f.type;const ext=(f.name.split('.').pop()||'').toLowerCase();return EXT_MIME[ext]||''};
 const mb=n=>(n/1048576).toFixed(1)+'MB';
+/* shrink a big video in the browser: replay it onto a canvas and re-record at a lower bitrate */
+function compressVideo(file,opt){opt=opt||{};
+ return new Promise((resolve,reject)=>{
+  if(!window.MediaRecorder||!HTMLCanvasElement.prototype.captureStream)return reject(new Error('unsupported'));
+  const v=document.createElement('video');v.playsInline=true;v.preload='auto';v.src=URL.createObjectURL(file);v.style.cssText='position:fixed;left:-9999px;top:0;width:2px;height:2px';document.body.append(v);
+  let raf=0,ac=null;
+  const done=(fn,x)=>{cancelAnimationFrame(raf);try{v.pause()}catch(e){}try{ac&&ac.close()}catch(e){}URL.revokeObjectURL(v.src);v.remove();fn(x)};
+  v.onerror=()=>done(reject,new Error('decode'));
+  v.onloadedmetadata=async()=>{
+   const dur=v.duration;if(!isFinite(dur)||dur<=0)return done(reject,new Error('decode'));
+   if(dur>(opt.maxSec||180))return done(reject,new Error('long'));
+   const k=Math.min(1,(opt.maxDim||1280)/Math.max(v.videoWidth,v.videoHeight));
+   const w=Math.max(2,Math.round(v.videoWidth*k/2)*2),h=Math.max(2,Math.round(v.videoHeight*k/2)*2);
+   const cv=document.createElement('canvas');cv.width=w;cv.height=h;const cx=cv.getContext('2d');
+   const stream=cv.captureStream(30);
+   try{ac=new (window.AudioContext||window.webkitAudioContext)();ac.resume&&ac.resume();const src=ac.createMediaElementSource(v);const dest=ac.createMediaStreamDestination();src.connect(dest);dest.stream.getAudioTracks().forEach(t=>stream.addTrack(t))}catch(e){}
+   const mt=['video/webm;codecs=vp9,opus','video/webm;codecs=vp8,opus','video/webm','video/mp4'].find(t=>MediaRecorder.isTypeSupported(t))||'';
+   let mr;try{mr=new MediaRecorder(stream,{mimeType:mt||undefined,videoBitsPerSecond:(opt.kbps||3500)*1000,audioBitsPerSecond:96000})}catch(e){return done(reject,e)}
+   const chunks=[];mr.ondataavailable=e=>{if(e.data&&e.data.size)chunks.push(e.data)};
+   mr.onstop=()=>{const type=(mr.mimeType||mt||'video/webm').split(';')[0];const blob=new Blob(chunks,{type});done(resolve,new File([blob],file.name.replace(/\.[a-z0-9]+$/i,'')+(type==='video/mp4'?'.mp4':'.webm'),{type}))};
+   const draw=()=>{cx.drawImage(v,0,0,w,h);if(opt.onProgress)opt.onProgress(Math.min(99,Math.round(v.currentTime/dur*100)));raf=requestAnimationFrame(draw)};
+   v.onended=()=>{cancelAnimationFrame(raf);setTimeout(()=>{try{mr.stop()}catch(e){done(reject,e)}},200)};
+   mr.start(500);
+   try{await v.play()}catch(e){return done(reject,new Error('play'))}
+   draw()}})}
+const VID_SOFT_MB=45;
 const addWorkFiles=async files=>{
  const probs=[];
  for(let f of files){
@@ -146,6 +172,10 @@ const addWorkFiles=async files=>{
   if(!mt){probs.push(nm+': סוג הקובץ לא נתמך'+(/hei[cf]/i.test(f.type+f.name)?' (HEIC). בחרו או צלמו כ־JPG':'')+'. מותרים תמונות JPG, PNG, WebP, GIF וסרטונים MP4, MOV, WebM');continue}
   if(mt.startsWith('image/')&&mt!=='image/gif'&&f.size>2*1048576){
    try{const d=await shrinkImg(f,1600);const blob=await (await fetch(d)).blob();f=new File([blob],nm.replace(/\.[a-z0-9]+$/i,'')+'.jpg',{type:'image/jpeg'});mt='image/jpeg'}catch(x){}}
+  if(mt.startsWith('video/')&&f.size>VID_SOFT_MB*1048576){
+   let st=$('#wkst');if(!st){st=document.createElement('div');st.id='wkst';st.className='hint';st.style.cssText='margin:8px 0;font-weight:600;color:var(--sky2)';const dz=$('#wkdrop');dz&&dz.insertAdjacentElement('afterend',st)}
+   try{st.textContent='מכווץ את '+nm+' ('+mb(f.size)+') · 0% · השאירו את המסך פעיל';f=await compressVideo(f,{maxDim:1280,kbps:3500,onProgress:p=>{st.textContent='מכווץ את '+nm+' · '+p+'% · השאירו את המסך פעיל'}});mt=f.type;st.textContent=''}
+   catch(x){st.textContent='';probs.push(nm+': '+(x.message==='long'?'הסרטון ארוך מדי לכיווץ אוטומטי (עד 3 דקות)':'לא הצלחנו לכווץ את הסרטון בדפדפן הזה')+'. אפשר לכווץ אותו באפליקציית הגלריה או לקצר אותו ולנסות שוב');continue}}
   if(f.size>MAX_WORK_MB*1048576){probs.push(nm+': הקובץ גדול מדי ('+mb(f.size)+', המקסימום '+MAX_WORK_MB+'MB). אפשר לכווץ את הסרטון או לקצר אותו');continue}
   if(f.type!==mt)f=new File([f],f.name,{type:mt});
   WORKS.push({kind:$('#wkk').value,media:mt.startsWith('video')?'video':'image',file:f,url:URL.createObjectURL(f)})}
@@ -331,7 +361,7 @@ function meView(pr,det,pk,wk,email,uid,own=true){
   frame(own?'#/me':'#/creators',`${needP?`<div class='bc' style='margin-bottom:14px;background:linear-gradient(135deg,#dff3ff,#c8f3ea);border:0'><b style='font-size:18px'>השלב הבא: בנו את המחירון והחבילות שלכם</b><p class='sub' style='margin:6px 0 12px'>כך מותגים יראו הכול לפני שהם פונים.</p><a class='btn b1' href='#/me?edit=pricing'>מעבר למחירון</a></div>`:''}
   ${urls.length?`<div class='pq${own?'':' pub'}'>${(own?hero:hero.filter(Boolean)).map((w,i)=>w?`<div class='pq${i?'r':'s'}'>${w.media_type==='video'?`<video src='${E(w.url)}#t=0.1' muted playsinline controls preload='metadata'></video>`:`<img src='${E(w.url)}' alt=''>`}<span>${own?(i?(WK[w.kind]||'סטורי / רילס'):'פוסט'):(WK[w.kind]||'עבודה')}</span></div>`:`<a class='pq${i?'r':'s'} pqe' href='#/me?edit=works'><b>＋</b><small>${i?'הוסיפו סטורי או רילס':'הוסיפו פוסט'}</small></a>`).join('')}</div>`:`<div class='pmos0'><div><b>עוד אין עבודות בפרופיל</b>${own?`<p>הוסיפו תמונות וסרטונים כדי שהפרופיל ייראה מרשים</p>${edit('works','העלאת עבודות')}`:`<p>היוצר עוד לא העלה עבודות</p>`}</div></div>`}
   <div class='phead'><div class='pavw'><div class='pavx' style='${avUrl?`background-image:url(${E(avUrl)})`:'background:linear-gradient(135deg,#38bdf8,#14b8a6)'}'>${avUrl?'':`<b style='color:#fff;font-size:44px;display:grid;place-items:center;height:100%'>${E(name[0]||'?')}</b>`}</div>${own?`<label class='avedit' title='החלפת תמונת פרופיל'>${SI("<path d='M4 8h3l2-3h6l2 3h3v11H4z'/><circle cx='12' cy='13' r='3.5'/>")}<input type='file' id='avf' accept='image/jpeg,image/png,image/webp' hidden></label>`:''}</div><div class='pinfo'><div class='h2 pname'>${E(name)}</div>${(window.AGMAP||{})[uid]?`<div class='agb'>בייצוג ${E(window.AGMAP[uid])}</div>`:''}<div class='sub'>${E([(det.niches||[]).join(', '),det.city].filter(Boolean).join(' · '))}</div></div><div class='pact'>${own?`<a class='btn b1' href='#/me?edit=prof'>${SI("<path d='M12 20h9'/><path d='M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z'/>")} עריכת פרופיל</a>`:''}</div></div>
-  <div class='pstats'><div><b>${fol?nfmt(fol):'—'}</b><small>עוקבים</small></div><div><b>${urls.length}</b><small>עבודות</small></div><div><b>${sv.length}</b><small>שירותים במחירון</small></div><div><b>${pk.length}</b><small>חבילות</small></div></div>
+  <div class='pstats'>${[['ig','אינסטגרם',det.followers_ig],['tt','טיקטוק',det.followers_tt],['yt','יוטיוב',det.followers_yt]].filter(x=>x[2]).map(x=>`<div><b>${nfmt(x[2])}</b><small>עוקבים ב${x[1]}</small></div>`).join('')||`<div><b>—</b><small>עוקבים</small></div>`}<div><b>${urls.length}</b><small>עבודות</small></div><div><b>${sv.length}</b><small>שירותים במחירון</small></div><div><b>${pk.length}</b><small>חבילות</small></div></div>
   <div class='socs'>${soc}${(own?[['ig','אינסטגרם',det.instagram],['tt','טיקטוק',det.tiktok],['yt','יוטיוב',det.youtube]]:[]).filter(x=>!x[2]).map(x=>`<button class='soc addsoc' data-k='${x[0]}'>＋ הוסיפו ${x[1]}</button>`).join('')}</div>
   <div class='tabs' id='tb'>${tabs.map((t,i)=>`<button data-i='${i}'>${t}</button>`).join('')}</div><div id='tc'>${tabs.map((t,i)=>`<section class='psec' id='m_${i}'><h3>${t}</h3>${body[t]()}</section>`).join('')}</div>
   ${own?`<p class='sub' style='margin-top:20px'>כך מותגים רואים את הפרופיל שלכם. <button class='btn b3 sm' id='lo3'>${ico('out')} התנתקות</button></p>`:`<div class='sbar'>${sv.some(z=>!z.price_private)?`<div class='sbp'>${(()=>{const m=sv.filter(z=>!z.price_private).sort((a,b)=>a.price-b.price)[0];return `<small>החל מ־</small><b>${shk(m.price)}</b><small>${E(svcTitle[m.service_key]||'')}</small>`})()}</div>`:sv.length?`<div class='sbp'><b style='font-size:16px'>מחיר בפרטי</b></div>`:''}<div class='sbb'>${(LS.g('user',{})||{}).r==='agent'?`<button class='btn b2' id='sag' data-u='${uid}'>הוספה לרשימת המיוצגים</button>`:`<button class='btn b3 sbm' id='sbm' aria-label='שליחת הודעה'>${SI("<path d='M21 12a8 8 0 0 1-11.5 7.2L4 20l1-4.5A8 8 0 1 1 21 12z'/>")} הודעה</button><button class='btn b2' id='sbr'>שליחת בריף ${SI("<path d='M22 2L11 13M22 2l-7 20-4-9-9-4z'/>")}</button>`}</div></div>`}`);
