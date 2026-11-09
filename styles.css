@@ -237,3 +237,4 @@ details.svg>summary.svt{cursor:pointer;list-style:none;display:flex;justify-cont
 .lbx{position:fixed;inset:0;z-index:120;background:rgba(0,0,0,.88);display:grid;place-items:center;cursor:zoom-out}.lbx img{max-width:94vw;max-height:90vh;border-radius:12px}
 .agb{display:inline-block;background:#fff4e0;color:#9a5b00;font-size:12px;font-weight:700;padding:3px 10px;border-radius:20px;margin-bottom:4px}
 .acn .agb{display:block;width:fit-content}
+.svq{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--ink2);white-space:nowrap;grid-column:1/-1;cursor:pointer}.svq input{width:auto}

@@ -71,7 +71,7 @@ async function saveManagedData(uid,r){
  const dl=await sb.from('creator_packages').delete().eq('user_id',uid);if(dl.error)return dl.error;
  if(r.packages.length){const i=await sb.from('creator_packages').insert(r.packages.map(p=>({user_id:uid,title:p.title,price:p.price,description:p.description||null,items:p.items})));if(i.error)return i.error}
  const d1=await sb.from('creator_services').delete().eq('user_id',uid);if(d1.error)return d1.error;
- if(r.services.length){const i=await sb.from('creator_services').insert(r.services.map(x=>({user_id:uid,service_key:x.key,platform:x.key.startsWith('tt_')?'tiktok':x.key.startsWith('yt_')?'youtube':x.key.startsWith('ugc_')?'ugc':'instagram',price:x.price,included:x.included||null})));if(i.error)return i.error}
+ if(r.services.length){const i=await sb.from('creator_services').insert(r.services.map(x=>({user_id:uid,service_key:x.key,platform:x.key.startsWith('tt_')?'tiktok':x.key.startsWith('yt_')?'youtube':x.key.startsWith('ugc_')?'ugc':'instagram',price:x.price,price_private:!!x.private,included:x.included||null})));if(i.error)return i.error}
  const d2=await sb.from('creator_addons').delete().eq('user_id',uid);if(d2.error)return d2.error;
  if(r.addons.length){const i=await sb.from('creator_addons').insert(r.addons.map(x=>({user_id:uid,addon_key:x.key,kind:x.kind,value:x.value,note:x.note||null})));if(i.error)return i.error}
  return null}
@@ -88,7 +88,7 @@ R['/managed']=async q=>{
  if(id){
   const {data:lk}=await sb.from('agency_creators').select('managed').eq('agent_id',me).eq('creator_id',id).maybeSingle();
   if(!lk||!lk.managed){frame('#/managed',`<div class='empty'>אפשר לערוך רק יוצרים שנוספו דרך הסוכנות שלכם.<br><br><a class='btn b1' href='#/'>חזרה</a></div>`);return}
-  const [c,s,a,p,w]=await Promise.all([sb.from('creator_profiles').select('*').eq('user_id',id).maybeSingle(),sb.from('creator_services').select('service_key,price,included').eq('user_id',id),sb.from('creator_addons').select('addon_key,kind,value,note').eq('user_id',id),sb.from('creator_packages').select('title,price,description,items').eq('user_id',id).order('created_at'),sb.from('creator_works').select('id,kind,media_type,path').eq('user_id',id).order('created_at')]);
+  const [c,s,a,p,w]=await Promise.all([sb.from('creator_profiles').select('*').eq('user_id',id).maybeSingle(),sb.from('creator_services').select('service_key,price,included,price_private').eq('user_id',id),sb.from('creator_addons').select('addon_key,kind,value,note').eq('user_id',id),sb.from('creator_packages').select('title,price,description,items').eq('user_id',id).order('created_at'),sb.from('creator_works').select('id,kind,media_type,path').eq('user_id',id).order('created_at')]);
   det=c.data||{};det.services=s.data||[];det.addons=a.data||[];pk=p.data||[];wk=w.data||[]}
  const avUrl=det.avatar_path?pubUrl(det.avatar_path):'';
  frame('#/managed',`<a href='#/' class='btn b3 sm' style='margin-bottom:12px'>← חזרה לסוכנות</a><div class='h2' style='font-size:30px'>${id?'עריכת יוצר מיוצג':'הוספת יוצר מיוצג'}</div><div class='sub' style='margin-bottom:16px'>בנו את הפרופיל והמחירון של היוצר. מפרסמים יראו אותו באתר, וההודעות אליו יגיעו אליכם.</div>
@@ -111,7 +111,7 @@ R['/managed']=async q=>{
   const b=$('#ss');b.disabled=true;const fail=m=>{b.disabled=false;showErr(m)};
   let uid=id;
   if(!id){const details={...r.d,services:r.services,addons:r.addons,packages:r.packages};
-   const {data,error}=await sb.rpc('agency_create_creator',{details});if(error)return fail(heError(error));uid=data}
+   const {data,error}=await sb.rpc('agency_create_creator',{details});if(error)return fail(heError(error));uid=data;const er0=await saveManagedData(uid,r);if(er0)toast('חלק מפרטי המחירון לא נשמרו. אפשר להשלים בעריכה')}
   else{const er=await saveManagedData(uid,r);if(er)return fail(heError(er))}
   if(MG_AV){const path=uid+'/avatar-'+Date.now()+'.'+MIME_EXT[MG_AV.type];
    const up=await sb.storage.from('creator-works').upload(path,MG_AV,{contentType:MG_AV.type,cacheControl:'3600'});

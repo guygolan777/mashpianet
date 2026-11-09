@@ -27,7 +27,7 @@ R['/creator']=async(q,id)=>{
 async function realProfile(c){
  frame('#/creators',`<div class='empty'>טוען...</div>`);
  const uid=c.id;
- const [cp,sv,ad,pk,wk,ins]=await Promise.all([sb.from('creator_profiles').select('*').eq('user_id',uid).maybeSingle(),sb.from('creator_services').select('service_key,price,included').eq('user_id',uid),sb.from('creator_addons').select('addon_key,kind,value,note').eq('user_id',uid),sb.from('creator_packages').select('title,price,description,items').eq('user_id',uid).order('created_at'),sb.from('creator_works').select('id,kind,media_type,path').eq('user_id',uid).order('created_at'),sb.from('creator_insights').select('*').eq('user_id',uid).maybeSingle()]);
+ const [cp,sv,ad,pk,wk,ins]=await Promise.all([sb.from('creator_profiles').select('*').eq('user_id',uid).maybeSingle(),sb.from('creator_services').select('service_key,price,included,price_private').eq('user_id',uid),sb.from('creator_addons').select('addon_key,kind,value,note').eq('user_id',uid),sb.from('creator_packages').select('title,price,description,items').eq('user_id',uid).order('created_at'),sb.from('creator_works').select('id,kind,media_type,path').eq('user_id',uid).order('created_at'),sb.from('creator_insights').select('*').eq('user_id',uid).maybeSingle()]);
  if(location.hash.indexOf(uid)<0)return;
  const det=cp.data||{};det.services=sv.data||[];det.addons=ad.data||[];det.insights=ins.data||{};
  meView({full_name:c.n},det,pk.data||[],wk.data||[],'',uid,false)}
